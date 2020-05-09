@@ -19,10 +19,13 @@ public class MainLoxy implements IGame {
 	private Timer showFPS;
 	private Command command;
 	private TickManager tick;
+	private Engine engine;
+	private int nbMapUpdate = 1;
 
 	@Override
-	public void init(Window window, Input input) {
+	public void init(Window window, Input input, Engine engine) {
 		this.window = window;
+		this.engine = engine;
 		tick = new TickManager();
 		renderer = new Renderer(window);
 		scene = renderer.getScene();
@@ -45,13 +48,13 @@ public class MainLoxy implements IGame {
 		showFPS = new Timer("FPS Display");
 		showFPS.schedule(new TimerTask() {
 
-			@Override 
+			@Override
 			public void run() {
 				// System.out.println(window.getFps());
 			}
 		}, 0, 1000);
 
-		command = new Command(window, player, tick);
+		command = new Command(this, engine);
 		command.init();
 	}
 
@@ -60,12 +63,12 @@ public class MainLoxy implements IGame {
 
 		boolean isTickUpdate = tick.update();
 		player.update(input, map, window);
-		map.update(scene, player, isTickUpdate);
-		 
+		if (engine.getNbUpdate() % nbMapUpdate == 0)
+			map.update(scene, player, isTickUpdate);
 	}
 
 	@Override
-	public void render(Window window) {
+	public void render(Window window) {		
 		map.renderUpdate(scene);
 		renderer.render(window);
 	}
@@ -96,5 +99,9 @@ public class MainLoxy implements IGame {
 		new Engine(new Window("Isis", 720, 480, true), new MainLoxy()).run();
 
 		Window.terminate();
+	}
+
+	public void setMapUpdate(int factor) {
+		this.nbMapUpdate = factor;
 	}
 }

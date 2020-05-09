@@ -27,14 +27,15 @@ public class Chunk {
 		resetMeshesTiles();
 	}
 
-	public void update(Scene scene, boolean isTickUpdate) {
-		// Update the tiles
+	public void update(Scene scene, boolean tickUpdate) {
 		Tile[] tileToUpdate = this.tileToUpdate.toArray(new Tile[this.tileToUpdate.size()]);
 		this.tileToUpdate.clear();
 
 		for (Tile tile : tileToUpdate) {
-			if (((tile.getProperty().contains(EnumProperty.ONLY_TICK_UPDATE) && isTickUpdate)) || (!tile.getProperty().contains(EnumProperty.ONLY_TICK_UPDATE))) {
+			if (((tile.getProperty().contains(EnumProperty.ONLY_TICK_UPDATE) && tickUpdate)) || (!tile.getProperty().contains(EnumProperty.ONLY_TICK_UPDATE))) {
 				tile.updateNow();
+			} else { // If this tile update on tick and this is not a tick update, put it to the next update
+				addTileToUpdate(tile);
 			}
 		}
 	}

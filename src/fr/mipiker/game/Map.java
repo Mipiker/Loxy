@@ -9,7 +9,7 @@ import fr.mipiker.isisEngine.*;
 public class Map {
 
 	public static final int RENDER_DISTANCE = 5;
-	
+
 	private HashMap<Vector2i, Chunk> chunks;
 	private ArrayList<Chunk> chunkToUpdate = new ArrayList<>();
 
@@ -22,15 +22,14 @@ public class Map {
 
 		Chunk[] chunkToUpdate = this.chunkToUpdate.toArray(new Chunk[this.chunkToUpdate.size()]);
 		this.chunkToUpdate.clear();
-		
-		for (Chunk chunk : chunkToUpdate)
+		for (Chunk chunk : chunkToUpdate) {
 			chunk.update(scene, tickUpdate);
+		}
 	}
 
 	public void renderUpdate(Scene scene) {
 		for (Chunk chunk : chunks.values())
 			chunk.renderUpdate(scene);
-
 	}
 
 	public void generate(Vector2i pos, Scene scene) {
@@ -101,7 +100,7 @@ public class Map {
 	}
 
 	public void addChunkToUpdate(Chunk chunk) {
-		if(!chunkToUpdate.contains(chunk))
+		if (!chunkToUpdate.contains(chunk))
 			chunkToUpdate.add(chunk);
 	}
 }

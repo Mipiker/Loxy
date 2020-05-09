@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import fr.mipiker.game.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.loader.Assimp;
+import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
 
 public abstract class Tile {
 
@@ -18,17 +19,19 @@ public abstract class Tile {
 	protected PositionTile pos;
 	protected Chunk belongChunk;
 	protected boolean mustRenderUpdate;
+	protected EnumCardinalPoint orientation;
 
 	private boolean mustUpdateSurroundingAfterThisUpdate;
 	private Texture[] textures;
 	private int actualTexture;
 
 	///////////////////////
-	
+
 	protected Tile(EnumTiles TYLE_TYPE, Chunk belongChunk, PositionTile pos) {
 		this.TYLE_TYPE = TYLE_TYPE;
 		this.pos = pos;
 		this.belongChunk = belongChunk;
+		orientation = NORTH;
 		textures = mapTileTypeTextures.get(TYLE_TYPE);
 		mesh = Mesh.copy(defaultMesh);
 		mesh.getMaterial().setTexture(textures[0]);
@@ -94,9 +97,9 @@ public abstract class Tile {
 	 * @param textureOrientation
 	 *            the orientation in radians
 	 */
-	protected void setAndOrientTexture(int textureIndex, float textureRotation) {
+	protected void setAndOrientTexture(int textureIndex, EnumCardinalPoint orientation) {
 		setTexture(textureIndex);
-		orientTexture(textureRotation);
+		setOrientation(orientation);
 	}
 	/**
 	 * Rotate the actual texture
@@ -104,10 +107,10 @@ public abstract class Tile {
 	 * @param textureRotation
 	 *            the rotation in radians
 	 */
-	protected void orientTexture(float textureRotation) {
-		mesh.getMaterial().setTextureRotation(textureRotation);
-		belongChunk.resetMeshOnUpdate();
-	}
+//	protected void orientTexture(float textureRotation) {
+//		mesh.getMaterial().setTextureRotation(textureRotation);
+//		belongChunk.resetMeshOnUpdate();
+//	}
 	/**
 	 * Set the new texture from textures array
 	 * 
@@ -123,7 +126,14 @@ public abstract class Tile {
 	}
 
 	///////////////////////
-
+	public EnumCardinalPoint getOrientation() {
+		return orientation;
+	}
+	public void setOrientation(EnumCardinalPoint orientation) {
+		this.orientation = orientation;
+		mesh.getMaterial().setTextureRotation(orientation.getValue() * (float) Math.PI / 2);
+		belongChunk.resetMeshOnUpdate();
+	}
 	public Mesh getMesh() {
 		return mesh;
 	}

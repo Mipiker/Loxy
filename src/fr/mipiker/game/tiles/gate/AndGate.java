@@ -21,12 +21,10 @@ public class AndGate extends Gate implements Powering {
 
 	@Override
 	public void addSourcePower(Powering tile) {
-		mustUpdate();
 	}
 
 	@Override
 	public void removeSourcePower(Powering tile) {
-		mustUpdate();
 	}
 
 	@Override
@@ -39,47 +37,6 @@ public class AndGate extends Gate implements Powering {
 
 	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
-		updateTexture(surroundingTiles);
-		System.out.println("update AND");
-	}
-
-	private void updateTexture(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
-		boolean north = surroundingTiles.get(EnumCardinalPoint.NORTH).getProperty().contains(EnumProperty.CONNECT_TO_WIRE);
-		boolean est = surroundingTiles.get(EnumCardinalPoint.EST).getProperty().contains(EnumProperty.CONNECT_TO_WIRE);
-		boolean south = surroundingTiles.get(EnumCardinalPoint.SOUTH).getProperty().contains(EnumProperty.CONNECT_TO_WIRE);
-		boolean west = surroundingTiles.get(EnumCardinalPoint.WEST).getProperty().contains(EnumProperty.CONNECT_TO_WIRE);
-
-		if (north && est && !south && west) {
-			orientTexture((float) (0 * Math.PI / 2));
-		} else if (north && est && south && !west) {
-			orientTexture((float) (1 * Math.PI / 2));
-		} else if (!north && est && south && west) {
-			orientTexture((float) (2 * Math.PI / 2));
-		} else if (north && !est && south && west) {
-			orientTexture((float) (3 * Math.PI / 2));
-		} else if (!north && est && !south && west) {
-			orientTexture((float) (0 * Math.PI / 2));
-		} else if (north && !est && south && !west) {
-			orientTexture((float) (1 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (2 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (3 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (0 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (1 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (2 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (3 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (0 * Math.PI / 2));
-			// } else if(north && est && !south && west) {
-			// orientTexture((float) (0 * Math.PI / 2));
-		}
-
-		belongChunk.resetMeshOnUpdate();
 	}
 
 	@Override

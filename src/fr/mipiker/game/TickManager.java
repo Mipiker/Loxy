@@ -4,7 +4,7 @@ public class TickManager {
 
 	private int nbTicksSecond = 1;
 	private long lastTime;
-	private int a;
+	private int rest;
 
 	public TickManager() {
 		lastTime = System.currentTimeMillis();
@@ -16,10 +16,10 @@ public class TickManager {
 	public boolean update() {
 		long actualTime = System.currentTimeMillis();
 
-		a += actualTime - lastTime;
+		rest += actualTime - lastTime;
 
-		if (a >= nbTicksSecond * 1000) {
-			a -= nbTicksSecond * 1000;
+		if (rest >= nbTicksSecond * 1000) {
+			rest -= nbTicksSecond * 1000;
 			lastTime = System.currentTimeMillis();
 			return true;
 		}

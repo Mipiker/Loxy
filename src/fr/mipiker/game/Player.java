@@ -151,6 +151,8 @@ public class Player {
 		}
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && tile instanceof Switch)
 			((Switch) tile).setPower(!((Switch) tile).isPowered());
+		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Gate))
+			tile.setOrientation(EnumCardinalPoint.getOrientation(tile.getOrientation().getValue() + 1));
 		if (input.getLastKeyState(GLFW_KEY_F5) == GLFW_PRESS)
 			tile.mustUpdate();
 

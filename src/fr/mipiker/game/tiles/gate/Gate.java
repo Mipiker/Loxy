@@ -4,7 +4,7 @@ import fr.mipiker.game.Chunk;
 import fr.mipiker.game.tiles.*;
 
 
-public abstract class Gate extends Tile {
+public abstract class Gate extends Tile implements Powering{
 
 	protected Gate(EnumTiles TYLE_TYPE, Chunk belongChunk, PositionTile pos) {
 		super(TYLE_TYPE, belongChunk, pos);

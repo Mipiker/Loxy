@@ -1,26 +1,51 @@
 package fr.mipiker.game;
 
 import java.io.*;
-import fr.mipiker.isisEngine.Window;
+import fr.mipiker.isisEngine.*;
 
 public class Command implements Runnable {
 
-	private Window window;
-	private Player player;
-	private TickManager tick;
+	private MainLoxy game;
+	private Engine engine;
 	private volatile boolean stopThread;
 
-	public Command(Window window, Player player, TickManager tick) {
-		this.window = window;
-		this.player = player;
-		this.tick = tick;
+	public Command(MainLoxy game, Engine engine) {
+		this.game = game;
+		this.engine = engine;
 	}
 
 	private void execute(String line) {
 		if (line.charAt(0) == '/') {
-			System.out.println("command");
+			line = line.substring(1);
+			String[] words = line.split(" ");
+			String[] args = new String[words.length - 1];
+			for (int i = 1; i < words.length; i++)
+				args[i - 1] = words[i];
+			commandPassed(words[0], args);
 		}
+	}
 
+	private void commandPassed(String command, String[] args) {
+		System.out.println("execute command " + command);
+		for (String a : args) {
+			System.out.println("args : " + a);
+		}
+		switch (command) {
+		case "command":
+			if (args.length == 1 && args[0] == "stop")
+				stopThread = true;
+			break;
+		case "tick":
+			if (args.length == 0 && args[0] == "stop") {
+			}
+			break;
+		case "update":
+			if (args.length == 2) {
+				if (args[0].equalsIgnoreCase("map")) {
+					game.setMapUpdate(Integer.parseInt(args[1]));
+				}
+			}
+		}
 	}
 
 	@Override
@@ -31,7 +56,7 @@ public class Command implements Runnable {
 			try {
 				// wait until we have data to complete a readLine()
 				while (!br.ready() && !stopThread) {
-					Thread.sleep(200);
+					Thread.sleep(100);
 				}
 				if (!stopThread) {
 					input = br.readLine();
@@ -41,7 +66,8 @@ public class Command implements Runnable {
 			} catch (InterruptedException | IOException e) {
 				e.printStackTrace();
 			}
-		} while ("".equals(input));
+		} while (!stopThread);
+		System.out.println("[Info] Stop command");
 	}
 
 	public void init() {
