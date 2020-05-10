@@ -155,6 +155,8 @@ public class Player {
 			tile.setOrientation(EnumCardinalPoint.getOrientation(tile.getOrientation().getValue() + 1));
 		if (input.getLastKeyState(GLFW_KEY_F5) == GLFW_PRESS)
 			tile.mustUpdate();
+		if (input.getLastKeyState(GLFW_KEY_F4) == GLFW_PRESS)
+			System.out.println("\n" + tile.toString());
 
 		return tile;
 	}

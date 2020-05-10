@@ -16,8 +16,8 @@ public class OrGate extends Gate {
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 		System.out.println("CACA");
 		if (orientation == NORTH) {
-			if (surroundingTiles.get(NORTH) instanceof Powering && surroundingTiles.get(EST) instanceof Powering && surroundingTiles.get(WEST) instanceof Powering) {
-				Powering in1 = (Powering) (surroundingTiles.get(EST));
+			if (surroundingTiles.get(NORTH) instanceof Powering && surroundingTiles.get(EAST) instanceof Powering && surroundingTiles.get(WEST) instanceof Powering) {
+				Powering in1 = (Powering) (surroundingTiles.get(EAST));
 				Powering in2 = (Powering) (surroundingTiles.get(WEST));
 				Powering out = (Powering) (surroundingTiles.get(NORTH));
 				if (in1.isPowered() || in2.isPowered()) {

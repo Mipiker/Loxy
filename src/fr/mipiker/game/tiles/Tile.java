@@ -102,16 +102,6 @@ public abstract class Tile {
 		setOrientation(orientation);
 	}
 	/**
-	 * Rotate the actual texture
-	 * 
-	 * @param textureRotation
-	 *            the rotation in radians
-	 */
-//	protected void orientTexture(float textureRotation) {
-//		mesh.getMaterial().setTextureRotation(textureRotation);
-//		belongChunk.resetMeshOnUpdate();
-//	}
-	/**
 	 * Set the new texture from textures array
 	 * 
 	 * @param textureIndex
@@ -126,6 +116,7 @@ public abstract class Tile {
 	}
 
 	///////////////////////
+
 	public EnumCardinalPoint getOrientation() {
 		return orientation;
 	}
@@ -146,5 +137,15 @@ public abstract class Tile {
 	public ArrayList<EnumProperty> getProperty() {
 		return property;
 	}
-
+	@Override
+	public String toString() {
+		return pos.toString() + "\nType : " + TYLE_TYPE + "\nOrientation : " + orientation;
+	}
 }
+
+/*
+ * How Update of tiles work :
+ * 
+ * When a tile is updated (manually or not), It update itself and if it is necessary, It will update
+ * his surrounding tiles.
+ */

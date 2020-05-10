@@ -30,7 +30,7 @@ public class PositionTile {
 
 	@Override
 	public String toString() {
-		return "World pos : " + worldPos.x + ", " + worldPos.y + " Chunk pos : " + chunkPos.x + ", " + chunkPos.y;
+		return "World pos : " + worldPos.x + ", " + worldPos.y + "\nChunk pos : " + chunkPos.x + ", " + chunkPos.y;
 	}
 	
 	

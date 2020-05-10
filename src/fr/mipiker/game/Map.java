@@ -93,7 +93,7 @@ public class Map {
 	public HashMap<EnumCardinalPoint, Tile> getSurroundingTiles(PositionTile pos) {
 		HashMap<EnumCardinalPoint, Tile> surroundingTiles = new HashMap<>();
 		surroundingTiles.put(EnumCardinalPoint.NORTH, getTile(pos.getWorldPos().add(0, -1, new Vector2i())));
-		surroundingTiles.put(EnumCardinalPoint.EST, getTile(pos.getWorldPos().add(1, 0, new Vector2i())));
+		surroundingTiles.put(EnumCardinalPoint.EAST, getTile(pos.getWorldPos().add(1, 0, new Vector2i())));
 		surroundingTiles.put(EnumCardinalPoint.SOUTH, getTile(pos.getWorldPos().add(0, 1, new Vector2i())));
 		surroundingTiles.put(EnumCardinalPoint.WEST, getTile(pos.getWorldPos().add(-1, 0, new Vector2i())));
 		return surroundingTiles;

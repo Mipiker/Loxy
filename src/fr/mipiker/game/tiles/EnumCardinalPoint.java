@@ -2,7 +2,7 @@ package fr.mipiker.game.tiles;
 
 public enum EnumCardinalPoint {
 
-	NORTH(0),EST(1),SOUTH(2),WEST(3);
+	NORTH(0),EAST(1),SOUTH(2),WEST(3);
 
 	private int value;
 
