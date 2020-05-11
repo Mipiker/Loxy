@@ -35,14 +35,16 @@ public class Command implements Runnable {
 			if (args.length == 1 && args[0] == "stop")
 				stopThread = true;
 			break;
-		case "tick":
-			if (args.length == 0 && args[0] == "stop") {
-			}
-			break;
-		case "update":
+		case "map":
 			if (args.length == 2) {
-				if (args[0].equalsIgnoreCase("map")) {
-					game.setMapUpdate(Integer.parseInt(args[1]));
+				if (args[0].equalsIgnoreCase("update")) {
+					if(args[1].equalsIgnoreCase("next")) {
+						game.getMap().update(game.getScene(), game.getPlayer(), false);
+					}
+					try {
+						game.setMapUpdate(Integer.parseInt(args[1]));
+					} catch (NumberFormatException e) {
+					}
 				}
 			}
 		}

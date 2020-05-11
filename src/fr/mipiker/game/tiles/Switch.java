@@ -1,6 +1,7 @@
 package fr.mipiker.game.tiles;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 import fr.mipiker.game.Chunk;
 
 public class Switch extends Tile implements Powering {
@@ -17,11 +18,13 @@ public class Switch extends Tile implements Powering {
 		// Set the texture
 		if ((power ? 1 : 0) != getActualTexture())
 			setTexture(power ? 1 : 0); // call a render update too
+		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet())
+			e.getValue().mustUpdate();
 	}
 
 	public void setPower(boolean power) {
 		this.power = power;
-		mustUpdateWithSurrounding();
+		mustUpdate();
 	}
 	public boolean isPowered() {
 		return power;

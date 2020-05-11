@@ -60,11 +60,12 @@ public class MainLoxy implements IGame {
 
 	@Override
 	public void update(Input input) {
-
 		boolean isTickUpdate = tick.update();
 		player.update(input, map, window);
-		if (engine.getNbUpdate() % nbMapUpdate == 0)
+		if (engine.getNbUpdate() % nbMapUpdate == 0) {
+			//System.out.println("UPDATE");
 			map.update(scene, player, isTickUpdate);
+		}
 	}
 
 	@Override
@@ -103,5 +104,19 @@ public class MainLoxy implements IGame {
 
 	public void setMapUpdate(int factor) {
 		this.nbMapUpdate = factor;
+	}
+
+	
+	public Scene getScene() {
+		return scene;
+	}
+
+	
+	public Player getPlayer() {
+		return player;
+	}
+
+	public Map getMap() {
+		return map;
 	}
 }

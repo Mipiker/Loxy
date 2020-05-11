@@ -23,6 +23,9 @@ public class Map {
 		Chunk[] chunkToUpdate = this.chunkToUpdate.toArray(new Chunk[this.chunkToUpdate.size()]);
 		this.chunkToUpdate.clear();
 		for (Chunk chunk : chunkToUpdate) {
+			chunk.fixTilesToUpdate();
+		}
+		for (Chunk chunk : chunkToUpdate) {
 			chunk.update(scene, tickUpdate);
 		}
 	}

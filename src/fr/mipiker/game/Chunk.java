@@ -5,6 +5,7 @@ import org.joml.Vector2i;
 import fr.mipiker.game.tiles.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.utils.GreedyMeshUtils;
+import static fr.mipiker.game.tiles.EnumProperty.*;
 
 public class Chunk {
 
@@ -17,6 +18,7 @@ public class Chunk {
 	private Map belongMap;
 	private ArrayList<Tile> tileToUpdate = new ArrayList<>();
 	private ArrayList<Tile> tileToRenderUpdate = new ArrayList<>();
+	private Tile[] fixedTilesToUpdate;
 
 	public Chunk(Vector2i pos, Map belongMap) {
 		this.pos = pos;
@@ -28,16 +30,18 @@ public class Chunk {
 	}
 
 	public void update(Scene scene, boolean tickUpdate) {
-		Tile[] tileToUpdate = this.tileToUpdate.toArray(new Tile[this.tileToUpdate.size()]);
-		this.tileToUpdate.clear();
-
-		for (Tile tile : tileToUpdate) {
-			if (((tile.getProperty().contains(EnumProperty.ONLY_TICK_UPDATE) && tickUpdate)) || (!tile.getProperty().contains(EnumProperty.ONLY_TICK_UPDATE))) {
+		for (Tile tile : fixedTilesToUpdate) {
+			if (((tile.getProperty().contains(ONLY_TICK_UPDATE) && tickUpdate)) || (!tile.getProperty().contains(ONLY_TICK_UPDATE))) {
 				tile.updateNow();
 			} else { // If this tile update on tick and this is not a tick update, put it to the next update
 				addTileToUpdate(tile);
 			}
 		}
+	}
+	
+	public void fixTilesToUpdate() {
+		fixedTilesToUpdate = tileToUpdate.toArray(new Tile[tileToUpdate.size()]);
+		tileToUpdate.clear();
 	}
 
 	public void renderUpdate(Scene scene) {

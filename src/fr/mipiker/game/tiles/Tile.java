@@ -67,10 +67,12 @@ public abstract class Tile {
 	 * Update the tile and after update the surrouding tiles on the next map update
 	 */
 	public void mustUpdateWithSurrounding() {
+		System.out.println(TYLE_TYPE + " " + pos + "(surrounding) \n");
 		this.mustUpdate();
 		this.mustUpdateSurroundingAfterThisUpdate = true;
 	}
 	public void mustUpdate() {
+		System.out.println(TYLE_TYPE + " " + pos + "\n");
 		belongChunk.addTileToUpdate(this);
 	}
 
