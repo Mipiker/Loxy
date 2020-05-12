@@ -3,28 +3,28 @@ package fr.mipiker.game.tiles.gate;
 import java.util.HashMap;
 import fr.mipiker.game.Chunk;
 import fr.mipiker.game.tiles.*;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
 
 public class OrGate extends Gate {
 
 	public OrGate(Chunk belongChunk, PositionTile pos) {
 		super(EnumTiles.OR_GATE, belongChunk, pos);
-
 	}
 
 	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
-		if (orientation == NORTH) {
-			if (surroundingTiles.get(NORTH) instanceof Powering && surroundingTiles.get(EAST) instanceof Powering && surroundingTiles.get(WEST) instanceof Powering) {
-				Powering in1 = (Powering) (surroundingTiles.get(EAST));
-				Powering in2 = (Powering) (surroundingTiles.get(WEST));
-				if ((in1.isPowered(EAST.getOpposite()) || in2.isPowered(WEST.getOpposite())) && !power) { // When the power is set to o,
-					power = true;
-					surroundingTiles.get(NORTH).mustUpdate();
-				} else if (!in1.isPowered(EAST.getOpposite()) && !in2.isPowered(WEST.getOpposite()) && power) {
-					power = false;
-					surroundingTiles.get(NORTH).mustUpdate();
-				}
+		System.out.println((surroundingTiles.get(orientation) instanceof Powering) + " " + (surroundingTiles.get(orientation.getClockwise()) instanceof Powering) + " " + (surroundingTiles.get(orientation.getAntiClockwise()) instanceof Powering));
+		if (surroundingTiles.get(orientation) instanceof Powering && surroundingTiles.get(orientation.getClockwise()) instanceof Powering && surroundingTiles.get(orientation.getAntiClockwise()) instanceof Powering) {
+			System.out.println("u");
+			Powering in1 = (Powering) (surroundingTiles.get(orientation.getClockwise()));
+			Powering in2 = (Powering) (surroundingTiles.get(orientation.getAntiClockwise()));
+			if ((in1.isPowered(orientation.getAntiClockwise()) || in2.isPowered(orientation.getClockwise())) && !power) {
+				power = true;
+				System.out.println("a");
+				surroundingTiles.get(orientation).mustUpdate();
+			} else if (!in1.isPowered(orientation.getAntiClockwise()) && !in2.isPowered(orientation.getClockwise()) && power) {
+				power = false;
+				System.out.println("b");
+				surroundingTiles.get(orientation).mustUpdate();
 			}
 		}
 	}
@@ -33,7 +33,6 @@ public class OrGate extends Gate {
 	public boolean isPowered(EnumCardinalPoint e) {
 		// A gate can only give power to his inputs
 		return e == orientation ? power : false;
-
 	}
 
 	@Override
