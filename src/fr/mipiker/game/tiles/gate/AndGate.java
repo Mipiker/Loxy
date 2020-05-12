@@ -11,36 +11,28 @@ public class AndGate extends Gate implements Powering {
 	}
 
 	@Override
-	public void setPower(boolean power) {
-	}
-
-	@Override
-	public boolean isPowered() {
-		return false;
-	}
-
-	@Override
-	public void addSourcePower(Powering tile) {
-	}
-
-	@Override
-	public void removeSourcePower(Powering tile) {
-	}
-
-	@Override
-	public void onTurningPowerOn() {
-	}
-
-	@Override
-	public void onTurningPowerOff() {
-	}
-
-	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
+		if (surroundingTiles.get(orientation) instanceof Powering && surroundingTiles.get(orientation.getClockwise()) instanceof Powering && surroundingTiles.get(orientation.getAntiClockwise()) instanceof Powering) {
+			Powering in1 = (Powering) (surroundingTiles.get(orientation.getClockwise()));
+			Powering in2 = (Powering) (surroundingTiles.get(orientation.getAntiClockwise()));
+			if (in1.isPowered(orientation.getAntiClockwise()) && in2.isPowered(orientation.getClockwise())) {
+				power = true;
+				surroundingTiles.get(orientation).mustUpdate();
+			} else if ((!in1.isPowered(orientation.getAntiClockwise()) || !in2.isPowered(orientation.getClockwise())) && power) {
+				power = false;
+				surroundingTiles.get(orientation).mustUpdate();
+			}
+		}
 	}
 
 	@Override
 	protected void renderUpdate(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
+	}
+
+	@Override
+	public boolean isPowered(EnumCardinalPoint e) {
+		// A gate can only give power to his inputs
+		return e == orientation ? power : false;
 	}
 
 }
