@@ -29,6 +29,9 @@ public class Switch extends Tile implements Powering {
 	public boolean isPowered() {
 		return power;
 	}
+	public boolean isPowered(EnumCardinalPoint e) {
+		return power; // Switch can give his power in all directions
+	}
 
 	@Override
 	protected void renderUpdate(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {

@@ -29,7 +29,7 @@ public class Wire extends Tile implements Powering {
 			for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet()) {
 				if (e.getValue() instanceof Powering) {
 					Powering tile = (Powering) e.getValue();
-					if (tile.isPowered()) {
+					if (tile.isPowered(e.getKey().getOpposite())) {
 						powerConnectionType.put(e.getKey(), GET_POWER);
 						// System.out.println("I get power from " + e.getKey());
 					} else {
@@ -57,7 +57,7 @@ public class Wire extends Tile implements Powering {
 				if (e.getValue() == GET_POWER) {
 					if (surroundingTiles.get(e.getKey()) instanceof Powering) {
 						Powering tile = (Powering) surroundingTiles.get(e.getKey());
-						if (!tile.isPowered()) {
+						if (!tile.isPowered(e.getKey().getOpposite())) {
 							powerConnectionType.put(e.getKey(), UNKNOWN);
 						}
 					} else
@@ -148,6 +148,11 @@ public class Wire extends Tile implements Powering {
 	public boolean isPowered() {
 		return power;
 	}
+	@Override
+	public boolean isPowered(EnumCardinalPoint e) {
+		return power; // Wire can give his power in all directions
+	}
+
 	@Override
 	public String toString() {
 		String str = super.toString() + "\nPower : " + power;

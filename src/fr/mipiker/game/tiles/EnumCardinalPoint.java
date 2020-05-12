@@ -13,6 +13,10 @@ public enum EnumCardinalPoint {
 	public int getValue() {
 		return value;
 	}
+	
+	public EnumCardinalPoint getOpposite() {
+		return getOrientation(value + 2);
+	}
 
 	public static EnumCardinalPoint getOrientation(int value) {
 		for (EnumCardinalPoint e : values())

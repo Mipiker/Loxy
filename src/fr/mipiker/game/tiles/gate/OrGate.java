@@ -14,48 +14,30 @@ public class OrGate extends Gate {
 
 	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
-		System.out.println("CACA");
 		if (orientation == NORTH) {
 			if (surroundingTiles.get(NORTH) instanceof Powering && surroundingTiles.get(EAST) instanceof Powering && surroundingTiles.get(WEST) instanceof Powering) {
 				Powering in1 = (Powering) (surroundingTiles.get(EAST));
 				Powering in2 = (Powering) (surroundingTiles.get(WEST));
-				Powering out = (Powering) (surroundingTiles.get(NORTH));
-				if (in1.isPowered() || in2.isPowered()) {
-					out.addSourcePower(this);
-
-				} else {
-					out.removeSourcePower(this);
+				if ((in1.isPowered(EAST.getOpposite()) || in2.isPowered(WEST.getOpposite())) && !power) { // When the power is set to o,
+					power = true;
+					surroundingTiles.get(NORTH).mustUpdate();
+				} else if (!in1.isPowered(EAST.getOpposite()) && !in2.isPowered(WEST.getOpposite()) && power) {
+					power = false;
+					surroundingTiles.get(NORTH).mustUpdate();
 				}
 			}
 		}
 	}
 
 	@Override
+	public boolean isPowered(EnumCardinalPoint e) {
+		// A gate can only give power to his inputs
+		return e == orientation ? power : false;
+
+	}
+
+	@Override
 	protected void renderUpdate(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 	}
 
-	@Override
-	public void setPower(boolean power) {
-	}
-
-	@Override
-	public boolean isPowered() {
-		return false;
-	}
-
-	@Override
-	public void addSourcePower(Powering tile) {
-	}
-
-	@Override
-	public void removeSourcePower(Powering tile) {
-	}
-
-	@Override
-	public void onTurningPowerOff() {
-	}
-
-	@Override
-	public void onTurningPowerOn() {
-	}
 }
