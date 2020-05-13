@@ -28,12 +28,10 @@ public class Wire extends Tile implements Powering {
 			for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet()) {
 				if (e.getValue() instanceof Powering) {
 					Powering tile = (Powering) e.getValue();
-					if (tile.isPowered(e.getKey().getOpposite())) {
+					if (tile.isPowered(e.getKey().getOpposite()))
 						powerConnectionType.put(e.getKey(), GET_POWER);
-						// System.out.println("I get power from " + e.getKey());
-					} else {
+					else
 						powerConnectionType.put(e.getKey(), GIVE_POWER);
-					}
 				}
 			}
 
@@ -50,6 +48,15 @@ public class Wire extends Tile implements Powering {
 			}
 
 		} else {
+			// If a tile has been placed and is not powered: add it to power connection type and give it power
+			for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet()) {
+				if (e.getValue() instanceof Powering && !powerConnectionType.containsKey(e.getKey())) {
+					Powering tile = (Powering) e.getValue();
+					if (!tile.isPowered(e.getKey().getOpposite())) {
+						powerConnectionType.put(e.getKey(), GIVE_POWER);
+					}
+				}
+			}
 			ArrayList<EnumCardinalPoint> removePowerConnectionType = new ArrayList<>();
 			// If a tile that gave power to this wire is now off, it is set to unknown
 			for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
@@ -64,7 +71,7 @@ public class Wire extends Tile implements Powering {
 				}
 			}
 
-			// If a tile is replaced and can't be powered remove the connection
+			// If a tile is replaced and can't be powered : remove the connection
 			for (EnumCardinalPoint e : removePowerConnectionType)
 				powerConnectionType.remove(e);
 
