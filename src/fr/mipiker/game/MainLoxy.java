@@ -63,7 +63,6 @@ public class MainLoxy implements IGame {
 		boolean isTickUpdate = tick.update();
 		player.update(input, map, window);
 		if (engine.getNbUpdate() % nbMapUpdate == 0) {
-			//System.out.println("UPDATE");
 			map.update(scene, player, isTickUpdate);
 		}
 	}

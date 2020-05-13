@@ -31,7 +31,7 @@ public class XorGate extends Gate implements Powering {
 
 	@Override
 	public boolean isPowered(EnumCardinalPoint e) {
-		// A gate can only give power to his inputs
+		// A gate can only give power to his outputs
 		return e == orientation ? power : false;
 	}
 

@@ -3,9 +3,8 @@ package fr.mipiker.game.tiles.gate;
 import fr.mipiker.game.Chunk;
 import fr.mipiker.game.tiles.*;
 
+public abstract class Gate extends Tile implements Powering {
 
-public abstract class Gate extends Tile implements Powering{
-	
 	protected boolean power;
 
 	protected Gate(EnumTiles TYLE_TYPE, Chunk belongChunk, PositionTile pos) {
@@ -13,7 +12,7 @@ public abstract class Gate extends Tile implements Powering{
 		property.add(EnumProperty.ONLY_TICK_UPDATE);
 		property.add(EnumProperty.CONNECT_TO_WIRE);
 	}
-	
+
 	@Override
 	public boolean isPowered() {
 		return power;
@@ -24,5 +23,13 @@ public abstract class Gate extends Tile implements Powering{
 	@Override
 	public void setPower(boolean power) {
 		mustUpdate();
+	}
+
+	/**
+	 * Clock wise rotation
+	 */
+	public void rotate() {
+		setOrientation(orientation.getClockwise());
+		mustUpdateWithSurrounding();
 	}
 }

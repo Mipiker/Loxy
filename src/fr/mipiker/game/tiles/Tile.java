@@ -18,7 +18,6 @@ public abstract class Tile {
 	protected Mesh mesh;
 	protected PositionTile pos;
 	protected Chunk belongChunk;
-	protected boolean mustRenderUpdate;
 	protected EnumCardinalPoint orientation;
 
 	private boolean mustUpdateSurroundingAfterThisUpdate;
@@ -79,6 +78,9 @@ public abstract class Tile {
 	protected abstract void renderUpdate(HashMap<EnumCardinalPoint, Tile> surroundingTiles);
 	public void renderUpdateNow() {
 		renderUpdate(belongChunk.getBelongMap().getSurroundingTiles(pos));
+	}
+	public void mustRenderUpdate() {
+		belongChunk.addTileToRenderUpdate(this);
 	}
 
 	///////////////////////

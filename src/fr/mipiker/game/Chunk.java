@@ -1,11 +1,11 @@
 package fr.mipiker.game;
 
+import static fr.mipiker.game.tiles.EnumProperty.ONLY_TICK_UPDATE;
 import java.util.ArrayList;
 import org.joml.Vector2i;
 import fr.mipiker.game.tiles.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.utils.GreedyMeshUtils;
-import static fr.mipiker.game.tiles.EnumProperty.*;
 
 public class Chunk {
 
@@ -38,7 +38,7 @@ public class Chunk {
 			}
 		}
 	}
-	
+
 	public void fixTilesToUpdate() {
 		fixedTilesToUpdate = tileToUpdate.toArray(new Tile[tileToUpdate.size()]);
 		tileToUpdate.clear();
@@ -68,6 +68,9 @@ public class Chunk {
 		tiles[tile.getPos().getChunkPos().x][tile.getPos().getChunkPos().y] = tile;
 		meshesTiles[tile.getPos().getChunkPos().x][tile.getPos().getChunkPos().y] = tile.getMesh();
 		tile.mustUpdateWithSurrounding();
+		tile.mustRenderUpdate();
+		for (Tile t : getBelongMap().getSurroundingTiles(tile.getPos()).values())
+			t.mustRenderUpdate();
 	}
 
 	private void resetTiles() {

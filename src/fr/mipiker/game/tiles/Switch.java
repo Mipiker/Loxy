@@ -15,9 +15,7 @@ public class Switch extends Tile implements Powering {
 
 	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
-		// Set the texture
-		if ((power ? 1 : 0) != getActualTexture())
-			setTexture(power ? 1 : 0); // call a render update too
+		mustRenderUpdate();
 		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet())
 			e.getValue().mustUpdate();
 	}
@@ -35,5 +33,12 @@ public class Switch extends Tile implements Powering {
 
 	@Override
 	protected void renderUpdate(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
+		if ((power ? 1 : 0) != getActualTexture())
+			setTexture(power ? 1 : 0); // call a render update too
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + "\nPower : " + power;
 	}
 }

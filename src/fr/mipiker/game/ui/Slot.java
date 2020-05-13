@@ -5,7 +5,7 @@ import fr.mipiker.isisEngine.*;
 
 public class Slot {
 
-	private static final Texture TEXTURE = new Texture("resources/hud/slot2b.png");
+	private static final Texture TEXTURE = new Texture("resources/hud/slot.png");
 	public static final int SIZE = 50;
 	private Item item;
 	private HudComponent componentSlot, componentItem;

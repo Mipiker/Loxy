@@ -19,7 +19,6 @@ public class Wire extends Tile implements Powering {
 	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 		updatePower(surroundingTiles);
-		belongChunk.addTileToRenderUpdate(this);
 	}
 	private void updatePower(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 
@@ -40,7 +39,7 @@ public class Wire extends Tile implements Powering {
 
 			// If the power is off and if this wire will get power from an other tile
 			if (powerConnectionType.containsValue(GET_POWER)) {
-				// This wire wire is now powered
+				// This wire is now powered
 				setPower(true);
 				// and all the surrounding tile that are not those who power this wire will be updated
 				for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
@@ -143,6 +142,7 @@ public class Wire extends Tile implements Powering {
 	@Override
 	public void setPower(boolean power) {
 		this.power = power;
+		mustRenderUpdate();
 	}
 	@Override
 	public boolean isPowered() {
@@ -150,7 +150,10 @@ public class Wire extends Tile implements Powering {
 	}
 	@Override
 	public boolean isPowered(EnumCardinalPoint e) {
-		return power; // Wire can give his power in all directions
+		// A wire can only give power to tiles that are not giving power to this wire
+		if (powerConnectionType.get(e) == null || powerConnectionType.get(e) != GET_POWER)
+			return power;
+		return false;
 	}
 
 	@Override
