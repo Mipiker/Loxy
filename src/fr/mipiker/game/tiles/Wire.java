@@ -26,6 +26,10 @@ public class Wire extends Tile implements Powering {
 		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet())
 			if (e.getValue() instanceof Powering)
 				nb++;
+		if (bridge && nb != 4) {
+			power = false;
+			bridge = false;
+		}
 		if (bridge && nb == 4)
 			updatePowerBridge(surroundingTiles);
 		else
@@ -174,7 +178,7 @@ public class Wire extends Tile implements Powering {
 				if (surroundingTiles.get(e.getKey()) instanceof Powering) {
 					Powering tile = (Powering) surroundingTiles.get(e.getKey());
 					if (!tile.isPowered(e.getKey().getOpposite()))
-						powerConnectionType.put(e.getKey(), GIVE_POWER);
+						powerConnectionType.put(e.getKey(), UNKNOWN);
 				} else // If it has been replaced by a tile that don't hundle power
 					removePowerConnectionType.add(e.getKey());
 			}
@@ -271,9 +275,11 @@ public class Wire extends Tile implements Powering {
 	// ----------
 
 	public void setBridge(boolean bridge) {
-		this.bridge = bridge;
-		mustUpdate();
-		mustRenderUpdate();
+		if (powerConnectionType.size() == 4) {
+			this.bridge = bridge;
+			mustUpdate();
+			mustRenderUpdate();
+		}
 	}
 	public boolean isBridge() {
 		return bridge;
@@ -293,9 +299,9 @@ public class Wire extends Tile implements Powering {
 	public String toString() {
 		String str = super.toString();
 		if (bridge)
-			str += "\nVertical Power: " + bridgeVerticalPower + "\nHorizontal power " + bridgeHorizontalPower;
+			str += "\nVertical power: " + bridgeVerticalPower + "\nHorizontal power : " + bridgeHorizontalPower;
 		else
-			str += "\nPower " + power;
+			str += "\nPower : " + power;
 		for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet())
 			str += "\n" + e.getKey() + " : " + (e.getValue() == GIVE_POWER ? "give" : (e.getValue() == GET_POWER ? "get" : "unknown"));
 		return str;

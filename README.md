@@ -4,7 +4,7 @@
 It has different tiles like wire, switch and logic OR, AND, XOR, INV gates.</br>
 With all of this you can possibly recreate a computer or at least a processor.
 
-If you want to test this game, you can download it in the release tab or [here](https://1drv.ms/f/s!An4tPvyLQpaXkhPM7uNTrsSK6M1w) or compile it in eclipse (make sure to add all lwjgl jars and Isis jar in build path, their natives are in folder lib/lib/all_natives).
+If you want to test this game, you can download it in the release tab or compile it in eclipse (make sure to add all lwjgl jars and Isis jar in build path, their natives are in folder lib/lib/all_natives).
 
 This is what it looks like :</br>
 ![game](/preview.jpg?raw=true)
@@ -22,7 +22,7 @@ This is what it looks like :</br>
 - Select a tile with **mouse wheel**
 - **Left click** to place the selected tile
 - **Right click** to remove it
-- **E** to interact (rotate gate or turn on/off switch)
+- **E** to interact
 - **F11** full screen
 - **F5** update hovered tile (if there is a bug)
 - Maintain **escape** to quit the game
