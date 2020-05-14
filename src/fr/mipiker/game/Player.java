@@ -153,6 +153,8 @@ public class Player {
 			((Switch) tile).setPower(!((Switch) tile).isPowered());
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Gate))
 			((Gate) tile).rotate();
+		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Wire))
+			((Wire) tile).setBridge(!((Wire) tile).isBridge());
 		if (input.getLastKeyState(GLFW_KEY_F5) == GLFW_PRESS)
 			tile.mustUpdate();
 		if (input.getLastKeyState(GLFW_KEY_F4) == GLFW_PRESS)

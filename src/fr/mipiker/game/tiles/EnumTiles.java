@@ -3,7 +3,7 @@ package fr.mipiker.game.tiles;
 public enum EnumTiles {
 
 						EMPTY((byte) 0, "empty.png"),
-						WIRE((byte) 1, new String[] { "wire/0_off.png", "wire/0_on.png", "wire/1_off.png", "wire/1_on.png", "wire/2_0_off.png", "wire/2_0_on.png", "wire/2_1_off.png", "wire/2_1_on.png", "wire/3_off.png", "wire/3_on.png", "wire/4_off.png", "wire/4_on.png" }),
+						WIRE((byte) 1, new String[] { "wire/0_off.png", "wire/0_on.png", "wire/1_off.png", "wire/1_on.png", "wire/2_0_off.png", "wire/2_0_on.png", "wire/2_1_off.png", "wire/2_1_on.png", "wire/3_off.png", "wire/3_on.png", "wire/4_0_off.png", "wire/4_0_on.png", "wire/4_1_off.png", "wire/4_1_on.png", "wire/4_2_off.png", "wire/4_2_on.png" }),
 						POWER((byte) 2, new String[] { "power/power_off.png", "power/power_on.png" }),
 						OR_GATE((byte) 3, "logic_gates/or.png"),
 						XOR_GATE((byte) 4, "logic_gates/xor.png"),

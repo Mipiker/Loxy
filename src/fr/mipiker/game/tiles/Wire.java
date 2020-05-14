@@ -5,9 +5,13 @@ import java.util.Map.Entry;
 import fr.mipiker.game.Chunk;
 import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
 
+// Need some refactoring
 public class Wire extends Tile implements Powering {
 
 	private boolean power = false;
+	private boolean bridge = false;
+	private boolean bridgeVerticalPower = false;
+	private boolean bridgeHorizontalPower = false;
 	private HashMap<EnumCardinalPoint, Integer> powerConnectionType = new HashMap<>();
 	private static final int UNKNOWN = 0, GET_POWER = 1, GIVE_POWER = 2;
 
@@ -18,10 +22,17 @@ public class Wire extends Tile implements Powering {
 
 	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
-		updatePower(surroundingTiles);
+		int nb = 0;
+		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet())
+			if (e.getValue() instanceof Powering)
+				nb++;
+		if (bridge && nb == 4)
+			updatePowerBridge(surroundingTiles);
+		else
+			updatePower(surroundingTiles);
 	}
-	private void updatePower(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 
+	private void updatePower(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 		// If power is off we set the power connection type of all the surrounding tiles
 		if (!power) {
 			powerConnectionType.clear();
@@ -37,57 +48,29 @@ public class Wire extends Tile implements Powering {
 
 			// If the power is off and if this wire will get power from an other tile
 			if (powerConnectionType.containsValue(GET_POWER)) {
-				// This wire is now powered
-				setPower(true);
+				setPower(true); // This wire is now powered
 				// and all the surrounding tile that are not those who power this wire will be updated
-				for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
-					if (e.getValue() == GIVE_POWER) {
+				for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet())
+					if (e.getValue() == GIVE_POWER)
 						surroundingTiles.get(e.getKey()).mustUpdate();
-					}
-				}
 			}
 
 		} else {
-			// If a tile has been placed and is not powered: add it to power connection type and give it power
-			for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet()) {
-				if (e.getValue() instanceof Powering && !powerConnectionType.containsKey(e.getKey())) {
-					Powering tile = (Powering) e.getValue();
-					if (!tile.isPowered(e.getKey().getOpposite())) {
-						powerConnectionType.put(e.getKey(), GIVE_POWER);
-					}
-				}
-			}
-			ArrayList<EnumCardinalPoint> removePowerConnectionType = new ArrayList<>();
-			// If a tile that gave power to this wire is now off, it is set to unknown
-			for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
-				if (e.getValue() == GET_POWER) {
-					if (surroundingTiles.get(e.getKey()) instanceof Powering) {
-						Powering tile = (Powering) surroundingTiles.get(e.getKey());
-						if (!tile.isPowered(e.getKey().getOpposite())) {
-							powerConnectionType.put(e.getKey(), UNKNOWN);
-						}
-					} else
-						removePowerConnectionType.add(e.getKey());
-				}
-			}
 
-			// If a tile is replaced and can't be powered : remove the connection
-			for (EnumCardinalPoint e : removePowerConnectionType)
-				powerConnectionType.remove(e);
+			whenPoweredUpdateNewSurroundingTile(surroundingTiles);
 
 			// If there is no tile that power this wire
 			if (!powerConnectionType.containsValue(GET_POWER)) {
 				// All the tiles that get power from this wire will update and the power shut down
 				setPower(false);
-				for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
-					if (e.getValue() == GIVE_POWER) {
+				for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet())
+					if (e.getValue() == GIVE_POWER)
 						surroundingTiles.get(e.getKey()).mustUpdate();
-					}
-				}
+
 			} else { // If there is at least 1 tile that give power
 				for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
 					// Thoses who gave power to this wire now get power from this wire
-					if (e.getValue() == UNKNOWN) {
+					if (e.getValue() == UNKNOWN || e.getValue() == GIVE_POWER) {
 						powerConnectionType.put(e.getKey(), GIVE_POWER);
 						surroundingTiles.get(e.getKey()).mustUpdate();
 					}
@@ -95,6 +78,110 @@ public class Wire extends Tile implements Powering {
 			}
 		}
 
+	}
+	private void updatePowerBridge(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
+		// It's the same as updatePower
+		// Update when not powered
+		if (!bridgeHorizontalPower) {
+			powerConnectionType.remove(EAST);
+			powerConnectionType.remove(WEST);
+		}
+		if (!bridgeVerticalPower) {
+			powerConnectionType.remove(NORTH);
+			powerConnectionType.remove(SOUTH);
+		}
+		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet()) {
+			if (e.getValue() instanceof Powering) {
+				Powering tile = (Powering) e.getValue();
+				if (!bridgeHorizontalPower && (e.getKey() == EAST || e.getKey() == WEST)) {
+					if (tile.isPowered(e.getKey().getOpposite()))
+						powerConnectionType.put(e.getKey(), GET_POWER);
+					else
+						powerConnectionType.put(e.getKey(), GIVE_POWER);
+				}
+				if (!bridgeVerticalPower && (e.getKey() == NORTH || e.getKey() == SOUTH)) {
+					if (tile.isPowered(e.getKey().getOpposite()))
+						powerConnectionType.put(e.getKey(), GET_POWER);
+					else
+						powerConnectionType.put(e.getKey(), GIVE_POWER);
+				}
+
+			}
+		}
+		// Powering up
+		if (!bridgeHorizontalPower && (powerConnectionType.get(WEST) == GET_POWER || powerConnectionType.get(EAST) == GET_POWER)) {
+			setBridgeHorizontalPower(true);
+			if (powerConnectionType.get(WEST) == GIVE_POWER)
+				surroundingTiles.get(WEST).mustUpdate();
+			if (powerConnectionType.get(EAST) == GIVE_POWER)
+				surroundingTiles.get(EAST).mustUpdate();
+		}
+		if (!bridgeVerticalPower && (powerConnectionType.get(NORTH) == GET_POWER || powerConnectionType.get(SOUTH) == GET_POWER)) {
+			setBridgeVerticalPower(true);
+			if (powerConnectionType.get(NORTH) == GIVE_POWER)
+				surroundingTiles.get(NORTH).mustUpdate();
+			if (powerConnectionType.get(SOUTH) == GIVE_POWER)
+				surroundingTiles.get(SOUTH).mustUpdate();
+		}
+		whenPoweredUpdateNewSurroundingTile(surroundingTiles);
+		if (powerConnectionType.get(EAST) != GET_POWER && powerConnectionType.get(WEST) != GET_POWER) {
+			setBridgeHorizontalPower(false);
+			if (powerConnectionType.get(EAST) == GIVE_POWER)
+				surroundingTiles.get(EAST).mustUpdate();
+			if (powerConnectionType.get(WEST) == GIVE_POWER)
+				surroundingTiles.get(WEST).mustUpdate();
+		} else {
+			if (powerConnectionType.get(EAST) == UNKNOWN) {
+				surroundingTiles.get(EAST).mustUpdate();
+				powerConnectionType.put(EAST, GIVE_POWER);
+			}
+			if (powerConnectionType.get(WEST) == UNKNOWN) {
+				surroundingTiles.get(WEST).mustUpdate();
+				powerConnectionType.put(WEST, GIVE_POWER);
+			}
+		}
+		if (powerConnectionType.get(SOUTH) != GET_POWER && powerConnectionType.get(NORTH) != GET_POWER) {
+			setBridgeVerticalPower(false);
+			if (powerConnectionType.get(SOUTH) == GIVE_POWER)
+				surroundingTiles.get(SOUTH).mustUpdate();
+			if (powerConnectionType.get(NORTH) == GIVE_POWER)
+				surroundingTiles.get(NORTH).mustUpdate();
+		} else {
+			if (powerConnectionType.get(SOUTH) == UNKNOWN) {
+				surroundingTiles.get(SOUTH).mustUpdate();
+				powerConnectionType.put(SOUTH, GIVE_POWER);
+			}
+			if (powerConnectionType.get(NORTH) == UNKNOWN) {
+				surroundingTiles.get(NORTH).mustUpdate();
+				powerConnectionType.put(NORTH, GIVE_POWER);
+			}
+		}
+	}
+	private void whenPoweredUpdateNewSurroundingTile(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
+		// If a tile has been placed and is not powered: add it to power connection type and give it power
+		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet()) {
+			if (e.getValue() instanceof Powering && !powerConnectionType.containsKey(e.getKey())) {
+				Powering tile = (Powering) e.getValue();
+				if (!tile.isPowered(e.getKey().getOpposite())) {
+					powerConnectionType.put(e.getKey(), GIVE_POWER);
+				}
+			}
+		}
+		ArrayList<EnumCardinalPoint> removePowerConnectionType = new ArrayList<>();
+		// If a tile that gave power to this wire now don't, it is set to unknown
+		for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
+			if (e.getValue() == GET_POWER) {
+				if (surroundingTiles.get(e.getKey()) instanceof Powering) {
+					Powering tile = (Powering) surroundingTiles.get(e.getKey());
+					if (!tile.isPowered(e.getKey().getOpposite()))
+						powerConnectionType.put(e.getKey(), GIVE_POWER);
+				} else // If it has been replaced by a tile that don't hundle power
+					removePowerConnectionType.add(e.getKey());
+			}
+		}
+		// If a tile is replaced and can't be powered : remove the connection
+		for (EnumCardinalPoint e : removePowerConnectionType)
+			powerConnectionType.remove(e);
 	}
 
 	// ----------
@@ -140,11 +227,23 @@ public class Wire extends Tile implements Powering {
 		} else if (north && est && !south && west) { // 3 - west/north/est
 			setAndOrientTexture(8, WEST);
 		} else if (north && est && south && west) { // 4 - north/est/south/west
-			setAndOrientTexture(10, NORTH);
+			if (!bridge)
+				setAndOrientTexture(10, NORTH);
+			else if (!bridgeVerticalPower && !bridgeHorizontalPower)
+				setAndOrientTexture(12, NORTH);
+			else if (bridgeVerticalPower && bridgeHorizontalPower)
+				setAndOrientTexture(13, NORTH);
+			else if (!bridgeVerticalPower && bridgeHorizontalPower)
+				setAndOrientTexture(14, NORTH);
+			else if (bridgeVerticalPower && !bridgeHorizontalPower)
+				setAndOrientTexture(15, NORTH);
 		}
 
-		setTexture(power ? getActualTexture() + 1 : getActualTexture());
+		if (!bridge)
+			setTexture(power ? getActualTexture() + 1 : getActualTexture());
 	}
+
+	// ----------
 
 	@Override
 	public void setPower(boolean power) {
@@ -158,17 +257,47 @@ public class Wire extends Tile implements Powering {
 	@Override
 	public boolean isPowered(EnumCardinalPoint e) {
 		// A wire can only give power to tiles that are not giving power to this wire
-		if (powerConnectionType.get(e) == null || powerConnectionType.get(e) != GET_POWER)
-			return power;
+		if (powerConnectionType.get(e) == null || powerConnectionType.get(e) != GET_POWER) {
+			if (!bridge)
+				return power;
+			else if (e == EAST || e == WEST)
+				return bridgeHorizontalPower;
+			else if (e == SOUTH || e == NORTH)
+				return bridgeVerticalPower;
+		}
 		return false;
 	}
 
+	// ----------
+
+	public void setBridge(boolean bridge) {
+		this.bridge = bridge;
+		mustUpdate();
+		mustRenderUpdate();
+	}
+	public boolean isBridge() {
+		return bridge;
+	}
+	private void setBridgeHorizontalPower(boolean bridgeHorizontalPower) {
+		this.bridgeHorizontalPower = bridgeHorizontalPower;
+		mustRenderUpdate();
+	}
+	private void setBridgeVerticalPower(boolean bridgeVerticalPower) {
+		this.bridgeVerticalPower = bridgeVerticalPower;
+		mustRenderUpdate();
+	}
+
+	// ----------
+
 	@Override
 	public String toString() {
-		String str = super.toString() + "\nPower : " + power;
-		for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet()) {
+		String str = super.toString();
+		if (bridge)
+			str += "\nVertical Power: " + bridgeVerticalPower + "\nHorizontal power " + bridgeHorizontalPower;
+		else
+			str += "\nPower " + power;
+		for (Entry<EnumCardinalPoint, Integer> e : powerConnectionType.entrySet())
 			str += "\n" + e.getKey() + " : " + (e.getValue() == GIVE_POWER ? "give" : (e.getValue() == GET_POWER ? "get" : "unknown"));
-		}
 		return str;
 	}
 }

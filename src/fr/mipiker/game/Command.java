@@ -6,12 +6,10 @@ import fr.mipiker.isisEngine.*;
 public class Command implements Runnable {
 
 	private MainLoxy game;
-	private Engine engine;
 	private volatile boolean stopThread;
 
 	public Command(MainLoxy game, Engine engine) {
 		this.game = game;
-		this.engine = engine;
 	}
 
 	private void execute(String line) {
