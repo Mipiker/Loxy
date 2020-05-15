@@ -1,6 +1,7 @@
 package fr.mipiker.game;
 
 import java.io.*;
+import fr.mipiker.game.utils.UtilsMap;
 import fr.mipiker.isisEngine.*;
 
 public class Command implements Runnable {
@@ -12,39 +13,55 @@ public class Command implements Runnable {
 		this.game = game;
 	}
 
-	private void execute(String line) {
+	public void prepareCommand(String line) {
 		if (line.charAt(0) == '/') {
 			line = line.substring(1);
 			String[] words = line.split(" ");
 			String[] args = new String[words.length - 1];
 			for (int i = 1; i < words.length; i++)
 				args[i - 1] = words[i];
-			commandPassed(words[0], args);
+			executeCommand(words[0], args);
 		}
 	}
 
-	private void commandPassed(String command, String[] args) {
-		System.out.println("execute command " + command);
-		for (String a : args) {
-			System.out.println("args : " + a);
-		}
+	private void executeCommand(String command, String[] args) {
 		switch (command) {
-		case "command":
-			if (args.length == 1 && args[0] == "stop")
-				stopThread = true;
-			break;
 		case "map":
 			if (args.length == 2) {
 				if (args[0].equalsIgnoreCase("update")) {
-					if(args[1].equalsIgnoreCase("next")) {
-						game.getMap().update(game.getScene(), game.getPlayer(), false);
-					}
 					try {
 						game.setMapUpdate(Integer.parseInt(args[1]));
 					} catch (NumberFormatException e) {
 					}
 				}
 			}
+			break;
+		case "save":
+			if (args.length == 1) {
+				if (UtilsMap.save(game.getMap(), args[0]))
+					System.out.println("[Info] Map " + args[0] + " successfully saved.");
+				else
+					System.out.println("[Error] Couldn't save map " + args[0] + ". Maybe the syntax of the given name contains unwanted charaters");
+			}
+			break;
+		case "load":
+			if (args.length == 1) {
+				Map map = UtilsMap.load(args[0]);
+				if (map != null) {
+					game.setMap(map);
+					System.out.println("[Info] Map " + args[0] + " successfully loaded.");
+				} else
+					System.out.println("[Error] Couldn't load map " + args[0] + ". Maybe the given name doesn't correspond to any saved map.");
+			}
+			break;
+		case "delete":
+			if (args.length == 1) {
+				if (UtilsMap.delete(args[0]))
+					System.out.println("[Info] Map " + args[0] + " successfully deleted.");
+				else
+					System.out.println("[Error] Couldn't delete map " + args[0] + ". Maybe the given name doesn't correspond to any saved map.");
+			}
+			break;
 		}
 	}
 
@@ -61,13 +78,12 @@ public class Command implements Runnable {
 				if (!stopThread) {
 					input = br.readLine();
 					if (input.length() > 0)
-						execute(input);
+						prepareCommand(input);
 				}
 			} catch (InterruptedException | IOException e) {
 				e.printStackTrace();
 			}
 		} while (!stopThread);
-		System.out.println("[Info] Stop command");
 	}
 
 	public void init() {

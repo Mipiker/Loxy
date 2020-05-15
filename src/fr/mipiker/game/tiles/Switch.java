@@ -9,7 +9,7 @@ public class Switch extends Tile implements Powering {
 	private boolean power = false;
 
 	public Switch(Chunk belongChunk, PositionTile pos) {
-		super(EnumTiles.POWER, belongChunk, pos);
+		super(EnumTiles.SWITCH, belongChunk, pos);
 		property.add(EnumProperty.CONNECT_TO_WIRE);
 	}
 

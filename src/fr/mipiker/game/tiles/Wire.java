@@ -275,11 +275,9 @@ public class Wire extends Tile implements Powering {
 	// ----------
 
 	public void setBridge(boolean bridge) {
-		if (powerConnectionType.size() == 4) {
-			this.bridge = bridge;
-			mustUpdate();
-			mustRenderUpdate();
-		}
+		this.bridge = bridge;
+		mustUpdate();
+		mustRenderUpdate();
 	}
 	public boolean isBridge() {
 		return bridge;

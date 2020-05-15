@@ -27,7 +27,8 @@ public class Player {
 	public void update(Input input, Map map, Window window) {
 		move(input);
 		updateSlotBar(input, window);
-		select(input, map, window);
+		if (map != null)
+			select(input, map, window);
 	}
 
 	public void move(Input input) {

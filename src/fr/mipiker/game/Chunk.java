@@ -70,7 +70,8 @@ public class Chunk {
 		tile.mustUpdateWithSurrounding();
 		tile.mustRenderUpdate();
 		for (Tile t : getBelongMap().getSurroundingTiles(tile.getPos()).values())
-			t.mustRenderUpdate();
+			if (t != null)
+				t.mustRenderUpdate();
 	}
 
 	private void resetTiles() {

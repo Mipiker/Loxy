@@ -3,6 +3,7 @@ package fr.mipiker.game.tiles;
 import java.util.*;
 import java.util.Map.Entry;
 import fr.mipiker.game.*;
+import fr.mipiker.game.tiles.gate.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.loader.Assimp;
 import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
@@ -12,7 +13,7 @@ public abstract class Tile {
 	protected static HashMap<EnumTiles, Texture[]> mapTileTypeTextures;
 	protected static Mesh defaultMesh;
 
-	public final EnumTiles TYLE_TYPE;
+	public final EnumTiles TYPE;
 
 	protected ArrayList<EnumProperty> property = new ArrayList<>();
 	protected Mesh mesh;
@@ -26,15 +27,35 @@ public abstract class Tile {
 
 	///////////////////////
 
-	protected Tile(EnumTiles TYLE_TYPE, Chunk belongChunk, PositionTile pos) {
-		this.TYLE_TYPE = TYLE_TYPE;
+	protected Tile(EnumTiles type, Chunk belongChunk, PositionTile pos) {
+		this.TYPE = type;
 		this.pos = pos;
 		this.belongChunk = belongChunk;
 		orientation = NORTH;
-		textures = mapTileTypeTextures.get(TYLE_TYPE);
+		textures = mapTileTypeTextures.get(type);
 		mesh = Mesh.copy(defaultMesh);
 		mesh.getMaterial().setTexture(textures[0]);
 		translateMeshToPosition();
+	}
+	public static Tile newTile(EnumTiles type, Chunk belongChunk, PositionTile pos) {
+		switch (type) {
+		case EMPTY:
+			return new Empty(belongChunk, pos);
+		case WIRE:
+			return new Wire(belongChunk, pos);
+		case SWITCH:
+			return new Switch(belongChunk, pos);
+		case OR_GATE:
+			return new OrGate(belongChunk, pos);
+		case XOR_GATE:
+			return new XorGate(belongChunk, pos);
+		case AND_GATE:
+			return new AndGate(belongChunk, pos);
+		case INV_GATE:
+			return new InvGate(belongChunk, pos);
+		}
+		System.out.println("ho!!!");
+		return null;
 	}
 	public static void load() {
 		if (mapTileTypeTextures == null) {
@@ -141,7 +162,7 @@ public abstract class Tile {
 	}
 	@Override
 	public String toString() {
-		return pos.toString() + "\nType : " + TYLE_TYPE + "\nOrientation : " + orientation;
+		return pos.toString() + "\nType : " + TYPE + "\nOrientation : " + orientation;
 	}
 }
 

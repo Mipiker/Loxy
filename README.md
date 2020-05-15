@@ -18,7 +18,7 @@ This is what it looks like :</br>
 - The **pink** a **XOR** gate
 
 ##### Key bindings :
-- Move with **Z,Q,S,D**
+- Move with **Z, Q, S, D, control, espace**
 - Select a tile with **mouse wheel**
 - **Left click** to place the selected tile
 - **Right click** to remove it
@@ -27,8 +27,11 @@ This is what it looks like :</br>
 - **F5** update hovered tile (if there is a bug)
 - Maintain **escape** to quit the game
 
-##### Commands :
-- `/map update <int>` slow the map update (default = 1)
+##### Commands : (type in your terminal `java -jar Loxy.jar`)
+- `/save <name>` save the map with this name
+- `/load <name>` load the map with the given name
+- `/delete <name>` delete the map with the given name
+- `/map update <int>` slow the update of the map (default = 1)
 
 The game is running on lwjgl3</br>
 Thanks to [Antonio Hernández Bejarano](https://ahbejarano.gitbook.io/lwjglgamedev/) for his engine.

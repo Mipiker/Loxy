@@ -40,11 +40,6 @@ public class MainLoxy implements IGame {
 
 		player = new Player(scene.getCamera(), renderer.getHud(), window);
 
-		map = new Map();
-
-		for (Mesh mesh : map.getMeshesToRender())
-			scene.addMesh(mesh);
-
 		showFPS = new Timer("FPS Display");
 		showFPS.schedule(new TimerTask() {
 
@@ -56,20 +51,24 @@ public class MainLoxy implements IGame {
 
 		command = new Command(this, engine);
 		command.init();
+
+		command.prepareCommand("/load adder");
+
 	}
 
 	@Override
 	public void update(Input input) {
 		boolean isTickUpdate = tick.update();
 		player.update(input, map, window);
-		if (engine.getNbUpdate() % nbMapUpdate == 0) {
+		if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null) {
 			map.update(scene, player, isTickUpdate);
 		}
 	}
 
 	@Override
-	public void render(Window window) {		
-		map.renderUpdate(scene);
+	public void render(Window window) {
+		if (map != null)
+			map.renderUpdate(scene);
 		renderer.render(window);
 	}
 
@@ -105,17 +104,22 @@ public class MainLoxy implements IGame {
 		this.nbMapUpdate = factor;
 	}
 
-	
 	public Scene getScene() {
 		return scene;
 	}
 
-	
 	public Player getPlayer() {
 		return player;
 	}
 
 	public Map getMap() {
 		return map;
+	}
+	public void setMap(Map map) {
+		scene.resetMeshes();
+		for (Mesh mesh : map.getMeshesToRender())
+			scene.addMesh(mesh);
+		this.map = map;
+
 	}
 }
