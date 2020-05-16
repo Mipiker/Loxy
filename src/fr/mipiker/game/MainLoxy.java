@@ -64,7 +64,7 @@ public class MainLoxy implements IGame {
 			map.update(scene, player, isTickUpdate);
 		}
 	}
-
+	
 	@Override
 	public void render(Window window) {
 		if (map != null)
@@ -80,7 +80,8 @@ public class MainLoxy implements IGame {
 		// FullScreen
 		if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
 			window.setFullscreen(!window.isFullscreen());
-
+		if (key == GLFW_KEY_F12 && action == GLFW_PRESS)
+			System.out.println(player.getCamera().getPosition());
 	}
 
 	@Override

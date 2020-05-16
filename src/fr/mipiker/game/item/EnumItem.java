@@ -4,7 +4,7 @@ package fr.mipiker.game.item;
 public enum EnumItem {
 
 	WIRE((byte) 0, "wire.png"),
-	POWER((byte) 1, "power.png"),
+	SWITCH((byte) 1, "switch.png"),
 	AND_GATE((byte) 2, "and_gate.png"),
 	OR_GATE((byte) 3, "or_gate.png"),
 	XOR_GATE((byte) 4, "xor_gate.png"),

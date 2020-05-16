@@ -9,13 +9,13 @@ import fr.mipiker.game.tiles.gate.*;
 import fr.mipiker.game.ui.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.utils.SelectionUtils;
+import java.lang.Math;
 
 public class Player {
 
 	private Camera camera;
 	private int speedFactor = 1;
 	private Tile selectedTile;
-	private Tile lastSelectedTile;
 	private SlotBar slotBar;
 	private Vector3f velocity = new Vector3f();
 
@@ -61,87 +61,34 @@ public class Player {
 	}
 
 	public void select(Input input, Map map, Window window) {
-
-		Tile newSelected = null;
-		boolean hasSeached = false;
 		// Select a tile
-		if (camera.getPosition().y < 50) {
-			if ((input.isMouseMoved() || !velocity.equals(new Vector3f(0), 0.001f))) {
-				hasSeached = true;
-				Vector2f mousePos = new Vector2f(input.getMousePosX(), input.getMousePosY());
-				find:
-				for (Chunk chunk : map.getChunks().values()) {
-					Vector2f[][] positions = new Vector2f[Chunk.SIZE][Chunk.SIZE];
-					for (int y_ = 0; y_ < positions[0].length; y_++)
-						for (int x_ = 0; x_ < positions.length; x_++)
-							positions[x_][y_] = new Vector2f(chunk.getPos()).mul(Chunk.SIZE).add(x_, y_);
-
-					Vector2f[][][] size = new Vector2f[Chunk.SIZE][Chunk.SIZE][2];
-					for (int y_ = 0; y_ < positions[0].length; y_++) {
-						for (int x_ = 0; x_ < positions.length; x_++) {
-							size[x_][y_][0] = new Vector2f(0, 0);
-							size[x_][y_][1] = new Vector2f(1, 1);
-						}
-					}
-
-					Vector2i pos = SelectionUtils.selectTileFromMouse(mousePos, window, camera, positions, size);
-
-					if (pos != null) {
-						newSelected = chunk.getTile(pos);
-						break find;
-					}
+		if (camera.getPosition().y < 50 && (input.isMouseMoved() || !velocity.equals(new Vector3f(0), 0.001f))) {
+			Vector3f dir = SelectionUtils.getRayFromMouse(new Vector2f(input.getMousePosX(), input.getMousePosY()), window, camera);
+			Rayf ray = new Rayf(camera.getPosition(), dir);
+			Planef plane = new Planef(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(1, 0, 0));
+			float t = Intersectionf.intersectRayPlane(ray, plane, 0.0001f);
+			if (t != -1) {
+				Vector3f intersect = camera.getPosition().add(dir.mul(t), new Vector3f());
+				Tile newSelectedTile = map.getTile(new Vector2i((int) Math.floor(intersect.x), (int) Math.floor(intersect.z)));
+				newSelectedTile = actionSelect(input, map, newSelectedTile);
+				if (selectedTile != null) {
+					selectedTile.getMesh().getMaterial().setAmbientStrength(1);
+					selectedTile.getBelongChunk().resetMeshOnUpdate();
 				}
-
-			}
-
-			if (hasSeached) {
-				if (selectedTile != null)
-					lastSelectedTile = selectedTile;
-				selectedTile = newSelected;
-			}
-
-			if (selectedTile != null) {
-				Tile prev = selectedTile;
-				selectedTile = actionSelect(input, map, selectedTile);
-				if (lastSelectedTile != null && !selectedTile.getPos().equals(lastSelectedTile.getPos())) {
-					lastSelectedTile.getMesh().getMaterial().setAmbientStrength(1);
-					lastSelectedTile.getBelongChunk().resetMeshOnUpdate();
-					selectedTile.getMesh().getMaterial().setAmbientStrength(2);
-					lastSelectedTile.getBelongChunk().resetMeshOnUpdate();
-				}
-				if (!prev.equals(selectedTile)) {
-					selectedTile.getMesh().getMaterial().setAmbientStrength(2);
-					lastSelectedTile.getBelongChunk().resetMeshOnUpdate();
-				}
-			}
-		} else {
-			if (lastSelectedTile != null) {
-				lastSelectedTile.getMesh().getMaterial().setAmbientStrength(1);
-				lastSelectedTile.getBelongChunk().resetMeshOnUpdate();
+				newSelectedTile.getMesh().getMaterial().setAmbientStrength(2);
+				newSelectedTile.getBelongChunk().resetMeshOnUpdate();
+				selectedTile = newSelectedTile;
 			}
 		}
 	}
 
 	private Tile actionSelect(Input input, Map map, Tile tile) {
 		if (input.isMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT)) {
-			if (slotBar.getSelectedSlot().getItem() != null) {
-				if (!(tile instanceof Wire) && slotBar.getSelectedSlot().getItem().ITEM_TYPE == EnumItem.WIRE) {
-					tile = new Wire(tile.getBelongChunk(), tile.getPos());
-					map.setTile(tile);
-				} else if (!(tile instanceof Switch) && slotBar.getSelectedSlot().getItem().ITEM_TYPE == EnumItem.POWER) {
-					tile = new Switch(tile.getBelongChunk(), tile.getPos());
-					map.setTile(tile);
-				} else if (!(tile instanceof AndGate) && slotBar.getSelectedSlot().getItem().ITEM_TYPE == EnumItem.AND_GATE) {
-					tile = new AndGate(tile.getBelongChunk(), tile.getPos());
-					map.setTile(tile);
-				} else if (!(tile instanceof OrGate) && slotBar.getSelectedSlot().getItem().ITEM_TYPE == EnumItem.OR_GATE) {
-					tile = new OrGate(tile.getBelongChunk(), tile.getPos());
-					map.setTile(tile);
-				} else if (!(tile instanceof XorGate) && slotBar.getSelectedSlot().getItem().ITEM_TYPE == EnumItem.XOR_GATE) {
-					tile = new XorGate(tile.getBelongChunk(), tile.getPos());
-					map.setTile(tile);
-				} else if (!(tile instanceof InvGate) && slotBar.getSelectedSlot().getItem().ITEM_TYPE == EnumItem.INV_GATE) {
-					tile = new InvGate(tile.getBelongChunk(), tile.getPos());
+			Item selected = slotBar.getSelectedSlot().getItem();
+			if (selected != null) {
+				EnumTiles type = EnumTiles.getTile(selected.TYPE);
+				if (type != null) {
+					tile = Tile.newTile(type, tile.getBelongChunk(), tile.getPos());
 					map.setTile(tile);
 				}
 			}
@@ -212,5 +159,4 @@ public class Player {
 	public Camera getCamera() {
 		return camera;
 	}
-
 }

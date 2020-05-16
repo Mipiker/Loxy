@@ -7,11 +7,11 @@ public abstract class Item {
 
 	private Texture texture;
 	protected static HashMap<EnumItem, Texture> itemtexture;
-	public final EnumItem ITEM_TYPE;
+	public final EnumItem TYPE;
 
-	public Item(EnumItem item) {
-		ITEM_TYPE = item;
-		this.texture = itemtexture.get(item);
+	public Item(EnumItem type) {
+		TYPE = type;
+		this.texture = itemtexture.get(type);
 	}
 
 	public static void loadItem() {
