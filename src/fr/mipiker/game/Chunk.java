@@ -9,12 +9,14 @@ import fr.mipiker.isisEngine.utils.GreedyMeshUtils;
 
 public class Chunk {
 
-	public static final int SIZE = 10;
+	public static int SIZE = 20;
+	
 	private Vector2i pos;
 	private Tile[][] tiles = new Tile[SIZE][SIZE];
 	private Mesh[] meshesToRender;
 	private Mesh[][] meshesTiles;
-	private boolean resetMesh;
+	private boolean resetMesh = false;
+	private boolean canRender = false;
 	private Map belongMap;
 	private ArrayList<Tile> tileToUpdate = new ArrayList<>();
 	private ArrayList<Tile> tileToRenderUpdate = new ArrayList<>();
@@ -26,16 +28,14 @@ public class Chunk {
 		resetTiles();
 		resetMeshesTiles();
 		resetMeshesToRender();
-		resetMeshesTiles();
 	}
 
-	public void update(Scene scene, boolean tickUpdate) {
+	public void update(boolean tickUpdate) {
 		for (Tile tile : fixedTilesToUpdate) {
-			if (((tile.getProperty().contains(ONLY_TICK_UPDATE) && tickUpdate)) || (!tile.getProperty().contains(ONLY_TICK_UPDATE))) {
+			if (((tile.getProperty().contains(ONLY_TICK_UPDATE) && tickUpdate)) || (!tile.getProperty().contains(ONLY_TICK_UPDATE)))
 				tile.updateNow();
-			} else { // If this tile update on tick and this is not a tick update, put it to the next update
+			else // If this tile update on tick and this is not a tick update, put it to the next update
 				addTileToUpdate(tile);
-			}
 		}
 	}
 
@@ -46,14 +46,14 @@ public class Chunk {
 
 	public void renderUpdate(Scene scene) {
 
+		// Render update tile that only asked to update their render
 		Tile[] tileToRenderUpdate = this.tileToRenderUpdate.toArray(new Tile[this.tileToRenderUpdate.size()]);
 		this.tileToRenderUpdate.clear();
-
 		for (Tile tile : tileToRenderUpdate)
 			tile.renderUpdateNow();
 
-		// Reset the meshes if needed
-		if (resetMesh) {
+		// Reset the meshes if needed and if the chunk is allowed to be rendered (not too far)
+		if (resetMesh && canRender) {
 			for (Mesh mesh : meshesToRender)
 				scene.removeMesh(mesh);
 			resetMeshesToRender();
@@ -115,18 +115,25 @@ public class Chunk {
 		}
 	}
 	public void addTileToRenderUpdate(Tile tile) {
-		if (!tileToRenderUpdate.contains(tile)) {
+		if (!tileToRenderUpdate.contains(tile))
 			tileToRenderUpdate.add(tile);
-		}
 	}
 
 	public Vector2i getPos() {
 		return pos;
 	}
 
+	public boolean getCanRender() {
+		return canRender;
+	}
+	public void setCanRender(boolean canRender) {
+		this.canRender = canRender;
+		if (canRender)
+			this.resetMesh = true;
+	}
+
 	@Override
 	public String toString() {
 		return "[Chunk] " + pos.x + " " + pos.y + " ";
-
 	}
 }

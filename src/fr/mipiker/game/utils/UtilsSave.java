@@ -17,11 +17,11 @@ public class UtilsSave {
 	 * @param name
 	 *            the name of the folder that save the map
 	 */
-	public static boolean save(Map map, Player player, String name) {
-		new File("save/" + name).mkdirs();
-		// Map
+	public static boolean save(Map map, Player player) {
+		new File("save/" + map.getName() + "/chunk").mkdirs();
+		// Chunk
 		for (Entry<Vector2i, Chunk> e : map.getChunks().entrySet()) {
-			File file = new File("save/" + name + "/" + e.getKey().x + "_" + e.getKey().y + ".chk");
+			File file = new File("save/" + map.getName() + "/chunk/" + e.getKey().x + "_" + e.getKey().y + ".chk");
 			try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(file))) {
 				for (int y = 0; y < Chunk.SIZE; y++) {
 					for (int x = 0; x < Chunk.SIZE; x++) {
@@ -35,16 +35,18 @@ public class UtilsSave {
 							dos.writeBoolean(((Wire) tile).isBridge()); // Bridge wire
 					}
 				}
-
 			} catch (IOException e1) {
 				return false;
 			}
 		}
-		// Player
-		try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(new File("save/" + name + "/player.ply")))) {
+		// Setting
+		try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(new File("save/" + map.getName() + "/setting.stt")))) {
+			// Player
 			dos.writeFloat(player.getCamera().getPosition().x);
 			dos.writeFloat(player.getCamera().getPosition().y);
 			dos.writeFloat(player.getCamera().getPosition().z);
+			// Chunk
+			dos.writeInt(Chunk.SIZE);
 		} catch (IOException e) {
 			return false;
 		}
@@ -59,40 +61,41 @@ public class UtilsSave {
 	 * @return the saved map
 	 */
 	public static Map load(Player player, String name) {
-		if (!new File("save/" + name).isDirectory())
+		if (!new File("save/" + name + "/chunk").isDirectory())
 			return null;
-		// Map
-		Map map = new Map();
-		for (String fileName : new File("save/" + name).list()) {
-			if (!"player.ply".equalsIgnoreCase(fileName)) {
-				String[] pos = fileName.substring(0, fileName.length() - 4).split("_");
-				int chunkX = Integer.parseInt(pos[0]);
-				int chunkY = Integer.parseInt(pos[1]);
-				Chunk chunk = new Chunk(new Vector2i(chunkX, chunkY), map);
-				try (DataInputStream dis = new DataInputStream(new FileInputStream(new File("save/" + name + "/" + fileName)))) {
-					for (int y = 0; y < Chunk.SIZE; y++) {
-						for (int x = 0; x < Chunk.SIZE; x++) {
-							Tile tile = Tile.newTile(EnumTiles.getTile(dis.readByte()), chunk, new PositionTile(chunk.getPos(), new Vector2i(x, y))); // Type
-							chunk.setTile(tile);
-							if (tile instanceof Gate)
-								tile.setOrientation(EnumCardinalPoint.getOrientation(dis.readByte())); // Orientation
-							if (tile instanceof Powering)
-								((Powering) tile).setPower(dis.readBoolean()); // Power
-							if (tile instanceof Wire)
-								((Wire) tile).setBridge(dis.readBoolean()); // Wire bridge
-						}
-					}
-					map.getChunks().put(chunk.getPos(), chunk);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		// Player
-		try (DataInputStream dis = new DataInputStream(new FileInputStream(new File("save/" + name + "/player.ply")))) {
-			player.getCamera().setPosition(new Vector3f(dis.readFloat(), dis.readFloat(), dis.readFloat()));
+		// Setting
+		try (DataInputStream dis = new DataInputStream(new FileInputStream(new File("save/" + name + "/setting.stt")))) {
+			player.getCamera().setPosition(new Vector3f(dis.readFloat(), dis.readFloat(), dis.readFloat())); // Player
+			Chunk.SIZE = dis.readInt();
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
+		}
+		// Chunk
+		Map map = new Map(name);
+		for (String fileName : new File("save/" + name + "/chunk").list()) {
+			String[] pos = fileName.substring(0, fileName.length() - 4).split("_");
+			int chunkX = Integer.parseInt(pos[0]);
+			int chunkY = Integer.parseInt(pos[1]);
+			Chunk chunk = new Chunk(new Vector2i(chunkX, chunkY), map);
+			try (DataInputStream dis = new DataInputStream(new FileInputStream(new File("save/" + name + "/chunk/" + fileName)))) {
+				for (int y = 0; y < Chunk.SIZE; y++) {
+					for (int x = 0; x < Chunk.SIZE; x++) {
+						Tile tile = Tile.newTile(EnumTiles.getTile(dis.readByte()), chunk, new PositionTile(chunk.getPos(), new Vector2i(x, y))); // Type
+						chunk.setTile(tile);
+						if (tile instanceof Gate)
+							tile.setOrientation(EnumCardinalPoint.getOrientation(dis.readByte())); // Orientation
+						if (tile instanceof Powering)
+							((Powering) tile).setPower(dis.readBoolean()); // Power
+						if (tile instanceof Wire)
+							((Wire) tile).setBridge(dis.readBoolean()); // Wire bridge
+					}
+				}
+				map.getChunks().put(chunk.getPos(), chunk);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 		return map;
 	}
@@ -104,12 +107,14 @@ public class UtilsSave {
 	 *            the name of folder where is saved the map
 	 */
 	public static boolean delete(String name) {
-		File dir = new File("save/" + name);
-		if (!dir.isDirectory())
-			return false;
-		for (String file : dir.list())
-			new File("save/" + name + "/" + file).delete();
-		return dir.delete();
+		for (File file : new File("save/" + name).listFiles())
+			if (file.isDirectory()) {
+				for (File file_ : new File(file.getPath()).listFiles())
+					file_.delete();
+				file.delete();
+			} else
+				file.delete();
+		return new File("save/" + name).delete();
 	}
 
 }

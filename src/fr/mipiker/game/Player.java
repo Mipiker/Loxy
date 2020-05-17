@@ -62,23 +62,27 @@ public class Player {
 
 	public void select(Input input, Map map, Window window) {
 		// Select a tile
-		if (camera.getPosition().y < 50 && (input.isMouseMoved() || !velocity.equals(new Vector3f(0), 0.001f))) {
+		Tile newSelectedTile = null;
+		if (camera.getPosition().y < 100 && (input.isMouseMoved() || !velocity.equals(new Vector3f(0), 0.001f))) {
 			Vector3f dir = SelectionUtils.getRayFromMouse(new Vector2f(input.getMousePosX(), input.getMousePosY()), window, camera);
 			Rayf ray = new Rayf(camera.getPosition(), dir);
 			Planef plane = new Planef(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(1, 0, 0));
 			float t = Intersectionf.intersectRayPlane(ray, plane, 0.0001f);
 			if (t != -1) {
 				Vector3f intersect = camera.getPosition().add(dir.mul(t), new Vector3f());
-				Tile newSelectedTile = map.getTile(new Vector2i((int) Math.floor(intersect.x), (int) Math.floor(intersect.z)));
-				newSelectedTile = actionSelect(input, map, newSelectedTile);
-				if (selectedTile != null) {
-					selectedTile.getMesh().getMaterial().setAmbientStrength(1);
-					selectedTile.getBelongChunk().resetMeshOnUpdate();
-				}
-				newSelectedTile.getMesh().getMaterial().setAmbientStrength(2);
-				newSelectedTile.getBelongChunk().resetMeshOnUpdate();
-				selectedTile = newSelectedTile;
+				newSelectedTile = map.getTile(new Vector2i((int) Math.floor(intersect.x), (int) Math.floor(intersect.z)));
 			}
+		}
+		if (selectedTile != null) {
+			selectedTile.getMesh().getMaterial().setAmbientStrength(1);
+			selectedTile.getBelongChunk().resetMeshOnUpdate();
+		}
+		if (newSelectedTile != null)
+			selectedTile = newSelectedTile;
+		if (selectedTile != null) {
+			selectedTile = actionSelect(input, map, selectedTile);
+			selectedTile.getMesh().getMaterial().setAmbientStrength(2);
+			selectedTile.getBelongChunk().resetMeshOnUpdate();
 		}
 	}
 
@@ -97,8 +101,10 @@ public class Player {
 			tile = new Empty(tile.getBelongChunk(), tile.getPos());
 			map.setTile(tile);
 		}
-		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && tile instanceof Switch)
+		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && tile instanceof Switch) {
+			System.out.println("action");
 			((Switch) tile).setPower(!((Switch) tile).isPowered());
+		}
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Gate))
 			((Gate) tile).rotate();
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Wire))
