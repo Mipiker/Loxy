@@ -7,7 +7,7 @@ import fr.mipiker.game.tiles.*;
 import fr.mipiker.game.utils.UtilsCoords;
 import fr.mipiker.isisEngine.*;
 import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
-import static fr.mipiker.game.Setting.*;
+import static fr.mipiker.game.Settings.*;
 
 public class Map {
 

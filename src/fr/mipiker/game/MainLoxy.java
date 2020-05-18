@@ -30,7 +30,8 @@ public class MainLoxy implements IGame {
 
 		Tile.load();
 		Item.loadItem();
-
+		Settings.load();
+		
 		camera.setRotation(new Vector3f(90, 0, 0));
 		camera.setPosition(new Vector3f(0, 20, 0));
 
@@ -62,8 +63,6 @@ public class MainLoxy implements IGame {
 		// Close the window
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_REPEAT)
 			glfwSetWindowShouldClose(window.getID(), true);
-		if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
-			System.out.println(Setting.RENDER_DISTANCE);
 		// FullScreen
 		if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
 			window.setFullscreen(!window.isFullscreen());

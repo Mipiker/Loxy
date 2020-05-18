@@ -3,7 +3,7 @@ package fr.mipiker.game;
 import java.io.*;
 import fr.mipiker.game.utils.UtilsSave;
 import fr.mipiker.isisEngine.*;
-import static fr.mipiker.game.Setting.*;
+import static fr.mipiker.game.Settings.*;
 
 public class Command implements Runnable {
 
@@ -41,7 +41,7 @@ public class Command implements Runnable {
 
 				else if ("create".equalsIgnoreCase(args[0])) {
 					game.setMap(new Map(args[1]));
-					Chunk.SIZE = 20;
+					Chunk.SIZE = DEFAULT_CHUNK_SIZE;
 					if (args.length == 3)
 						try {
 							Chunk.SIZE = Integer.parseInt(args[2]);
@@ -82,10 +82,12 @@ public class Command implements Runnable {
 			if (args.length == 1) {
 				try {
 					RENDER_DISTANCE = Integer.parseInt(args[0]);
+					save();
 				} catch (NumberFormatException e) {
 					System.out.println("[Error] " + args[0] + " is not an integer.");
 				}
 			}
+			break;
 		default:
 			System.out.println("[Error] Unknown command.");
 		}
