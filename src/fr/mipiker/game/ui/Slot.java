@@ -16,18 +16,22 @@ public class Slot {
 
 	public Slot(Item item) {
 		this.item = item;
-		componentSlot = new HudComponent(TEXTURE).setWidth(SIZE).setHeight(SIZE);
-		if (item != null)
-			componentItem = new HudComponent(item.getTexture()).setWidth(SIZE).setHeight(SIZE);
+		componentSlot = new HudComponent(TEXTURE);
+		componentSlot.setSize(SIZE);
+		if (item != null) {
+			componentItem = new HudComponent(item.getTexture());
+			componentItem.setSize(SIZE);
+		}
 	}
 
 	public Item getItem() {
 		return item;
 	}
 	public void setItem(Item item) {
-		if (this.item == null)
-			componentItem = new HudComponent(item.getTexture()).setWidth(SIZE).setHeight(SIZE);
-		else
+		if (this.item == null) {
+			componentItem = new HudComponent(item.getTexture());
+			componentItem.setSize(SIZE);
+		} else
 			componentItem.getMaterial().setTexture(item.getTexture());
 		this.item = item;
 	}

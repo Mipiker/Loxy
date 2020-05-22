@@ -1,10 +1,23 @@
 package fr.mipiker.game;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_F11;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_F12;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 import fr.mipiker.game.item.Item;
 import fr.mipiker.game.tiles.Tile;
-import fr.mipiker.isisEngine.*;
+import fr.mipiker.game.ui.PageManager;
+import fr.mipiker.isisEngine.Camera;
+import fr.mipiker.isisEngine.Engine;
+import fr.mipiker.isisEngine.IGame;
+import fr.mipiker.isisEngine.Input;
+import fr.mipiker.isisEngine.Renderer;
+import fr.mipiker.isisEngine.Scene;
+import fr.mipiker.isisEngine.Window;
 
 public class MainLoxy implements IGame {
 
@@ -18,43 +31,51 @@ public class MainLoxy implements IGame {
 	private TickManager tick;
 	private Engine engine;
 	private int nbMapUpdate = 1;
+	private PageManager pageManager;
 
 	@Override
 	public void init(Window window, Input input, Engine engine) {
+		
+		Tile.load();
+		Item.loadItem();
+		Settings.load();
+		
 		this.window = window;
 		this.engine = engine;
 		tick = new TickManager();
 		renderer = new Renderer(window);
 		scene = renderer.getScene();
 		camera = scene.getCamera();
+		pageManager = new PageManager(renderer.getHud(), window);
 
-		Tile.load();
-		Item.loadItem();
-		Settings.load();
-		
 		camera.setRotation(new Vector3f(90, 0, 0));
 		camera.setPosition(new Vector3f(0, 20, 0));
 
 		player = new Player(scene.getCamera(), renderer.getHud(), window);
 
 		command = new Command(this, engine);
-		command.init();
 		command.prepareCommand("/map load adder");
-
 	}
 
 	@Override
 	public void update(Input input) {
+		pageManager.update(input, player, renderer.getHud());
 		boolean isTickUpdate = tick.update();
-		player.update(input, map, window);
-		if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null)
-			map.update(scene, player, isTickUpdate);
+		if ("Menu".equalsIgnoreCase(pageManager.getPage())) {
+			if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null)
+				map.update(scene, player, isTickUpdate);
+		} else if("In Game".equalsIgnoreCase(pageManager.getPage())) {
+			player.update(input, map, window);
+			if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null)
+				map.update(scene, player, isTickUpdate);
+		}
 	}
 
 	@Override
 	public void render(Window window) {
 		if (map != null)
 			map.renderUpdate(scene);
+		pageManager.render(renderer.getHud(), player);
 		renderer.render(window);
 	}
 
@@ -80,7 +101,7 @@ public class MainLoxy implements IGame {
 
 		System.setProperty("org.lwjgl.librarypath", "lib\\all_natives");
 		Window.initialize();
-		new Engine(new Window("Isis", 720, 480, true), new MainLoxy()).run();
+		new Engine(new Window("Isis", new Vector2i(720, 480), true), new MainLoxy()).run();
 		Window.terminate();
 	}
 

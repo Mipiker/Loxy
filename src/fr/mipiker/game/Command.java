@@ -12,6 +12,7 @@ public class Command implements Runnable {
 
 	public Command(MainLoxy game, Engine engine) {
 		this.game = game;
+		init();
 	}
 
 	public void prepareCommand(String line) {

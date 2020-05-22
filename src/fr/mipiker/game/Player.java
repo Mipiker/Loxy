@@ -131,7 +131,7 @@ public class Player {
 		}
 	}
 
-	public void initSlotBar(Hud hud, Window window) {
+	private void initSlotBar(Hud hud, Window window) {
 		slotBar = new SlotBar(10);
 		slotBar.addItem(new WireItem());
 		slotBar.addItem(new PowerItem());
@@ -140,16 +140,11 @@ public class Player {
 		slotBar.addItem(new AndGateItem());
 		slotBar.addItem(new InvGateItem());
 		resetPosSlotBar(window);
-		for (Slot slot : slotBar.getSlots()) {
-			hud.addComponent(slot.getComponentSlot());
-			if (slot.hasItem())
-				hud.addComponent(slot.getComponentItem());
-		}
 	}
 
 	private void resetPosSlotBar(Window window) {
 		int spacebtw = 10;
-		float posX = (window.getWidth() / 2f) - (((Slot.SIZE + spacebtw) * slotBar.getSize()) / 2f);
+		float posX = (window.getSize().x / 2f) - (((Slot.SIZE + spacebtw) * slotBar.getSize()) / 2f);
 		for (int i = 0; i < slotBar.getSize(); i++) {
 			Slot slot = slotBar.getSlot(i);
 			slot.getComponentSlot().getTransformation().setTranslation(posX, spacebtw, 0);
@@ -160,6 +155,10 @@ public class Player {
 		slotBar.getSelectedSlot().getComponentSlot().getTransformation().translate(0, Slot.SIZE, 0);
 		if (slotBar.getSelectedSlot().hasItem())
 			slotBar.getSelectedSlot().getComponentItem().getTransformation().translate(0, Slot.SIZE, 0);
+	}
+	
+	public SlotBar getSlotBar() {
+		return slotBar;
 	}
 
 	public Camera getCamera() {

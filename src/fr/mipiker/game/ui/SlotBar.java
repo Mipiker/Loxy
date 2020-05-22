@@ -1,6 +1,7 @@
 package fr.mipiker.game.ui;
 
 import fr.mipiker.game.item.Item;
+import fr.mipiker.isisEngine.Hud;
 
 public class SlotBar {
 
@@ -14,6 +15,21 @@ public class SlotBar {
 	}
 	public SlotBar(Slot[] slots) {
 		setSlot(slots);
+	}
+	
+	public void show(Hud hud) {
+		for (Slot slot : getSlots()) {
+			hud.replaceComponent(slot.getComponentSlot());
+			if (slot.hasItem())
+				hud.replaceComponent(slot.getComponentItem());
+		}
+	}
+	public void unShow(Hud hud) {
+		for (Slot slot : getSlots()) {
+			hud.removeComponent(slot.getComponentSlot());
+			if (slot.hasItem())
+				hud.removeComponent(slot.getComponentItem());
+		}
 	}
 
 	public Slot getSelectedSlot() {
