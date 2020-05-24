@@ -1,13 +1,20 @@
 package fr.mipiker.game;
 
-import java.util.*;
+import static fr.mipiker.game.Settings.RENDER_DISTANCE;
+import static fr.mipiker.game.tiles.EnumCardinalPoint.EAST;
+import static fr.mipiker.game.tiles.EnumCardinalPoint.NORTH;
+import static fr.mipiker.game.tiles.EnumCardinalPoint.SOUTH;
+import static fr.mipiker.game.tiles.EnumCardinalPoint.WEST;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import org.joml.Vector2i;
-import fr.mipiker.game.tiles.*;
+import fr.mipiker.game.tiles.EnumCardinalPoint;
+import fr.mipiker.game.tiles.PositionTile;
+import fr.mipiker.game.tiles.Tile;
 import fr.mipiker.game.utils.UtilsCoords;
-import fr.mipiker.isisEngine.*;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
-import static fr.mipiker.game.Settings.*;
+import fr.mipiker.isisEngine.Mesh;
+import fr.mipiker.isisEngine.Scene;
 
 public class Map {
 
@@ -19,6 +26,11 @@ public class Map {
 	}
 	public Map(String name) {
 		this.name = name;
+	}
+	public Map(Map map) {
+		name = map.name;
+		chunks = new HashMap<>(map.chunks);
+		chunkToUpdate = new ArrayList<>(map.chunkToUpdate);
 	}
 
 	public void update(Scene scene, Player player, boolean tickUpdate) {

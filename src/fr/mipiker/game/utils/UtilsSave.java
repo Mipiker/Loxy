@@ -1,10 +1,28 @@
 package fr.mipiker.game.utils;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Map.Entry;
-import org.joml.*;
-import fr.mipiker.game.*;
-import fr.mipiker.game.tiles.*;
+import org.joml.Vector2i;
+import org.joml.Vector3f;
+import fr.mipiker.game.Chunk;
+import fr.mipiker.game.Map;
+import fr.mipiker.game.Player;
+import fr.mipiker.game.tiles.EnumCardinalPoint;
+import fr.mipiker.game.tiles.EnumTiles;
+import fr.mipiker.game.tiles.PositionTile;
+import fr.mipiker.game.tiles.Powering;
+import fr.mipiker.game.tiles.Tile;
+import fr.mipiker.game.tiles.Wire;
 import fr.mipiker.game.tiles.gate.Gate;
 
 public class UtilsSave {
@@ -117,4 +135,16 @@ public class UtilsSave {
 		return new File("save/" + name).delete();
 	}
 
+	public static boolean copy(String mapName, String copyMapName) {
+		Path from = Paths.get("save/" + mapName);
+		Path to = Paths.get("save/" + copyMapName);
+		CopyOption[] options = new CopyOption[] { StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES };
+		try {
+			Files.copy(from, to, options);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
 }

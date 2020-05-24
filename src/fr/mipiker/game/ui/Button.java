@@ -3,6 +3,7 @@ package fr.mipiker.game.ui;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 import fr.mipiker.isisEngine.Hud;
 import fr.mipiker.isisEngine.HudTextComponent;
 import fr.mipiker.isisEngine.Input;
@@ -17,10 +18,22 @@ class Button {
 	private ButtonMouseAlignedCallback onMouseAligned;
 	private ButtonMouseHoveredCallback onMouseHovered;
 	private Vector2f pos;
+	private boolean selected;
 
 	Button(String text, Hud hud) {
+		pos = new Vector2f(0);
 		this.text = text;
 		resetComponent(hud);
+	}
+	Button(Button b) {
+		text = b.text;
+		component = new HudTextComponent(b.component);
+		onHoveredLeftClick = b.onHoveredLeftClick;
+		onAlignedLeftClick = b.onAlignedLeftClick;
+		onAlignedRightClick = b.onAlignedRightClick;
+		onMouseAligned = b.onMouseAligned;
+		onMouseHovered = b.onMouseHovered;
+		pos = new Vector2f(b.pos);
 	}
 
 	void update(Input input, Vector2f windowSize, Vector2f pos) {
@@ -41,6 +54,7 @@ class Button {
 					onHoveredLeftClick.onLeftClick();
 			}
 		}
+			component.setColor(selected ? new Vector4f(0.4f, 0.69f, .19f, 1) : new Vector4f(1));
 	}
 
 	void setHoveredLeftClickCallback(ButtonHoveredLeftClickCallback onHoveredLeftClick) {
@@ -55,7 +69,7 @@ class Button {
 	void setMouseAlignedCallback(ButtonMouseAlignedCallback onMouseAligned) {
 		this.onMouseAligned = onMouseAligned;
 	}
-	void setHoveredCallBack(ButtonMouseHoveredCallback onMouseHovered) {
+	void setHoveredCallback(ButtonMouseHoveredCallback onMouseHovered) {
 		this.onMouseHovered = onMouseHovered;
 	}
 
@@ -89,4 +103,7 @@ class Button {
 		this.pos = pos;
 	}
 
+	void setSelected(boolean selected) {
+		this.selected = selected;
+	}
 }

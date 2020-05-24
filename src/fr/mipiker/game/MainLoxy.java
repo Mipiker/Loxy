@@ -1,11 +1,8 @@
 package fr.mipiker.game;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F11;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F12;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 import fr.mipiker.game.item.Item;
@@ -46,7 +43,7 @@ public class MainLoxy implements IGame {
 		renderer = new Renderer(window);
 		scene = renderer.getScene();
 		camera = scene.getCamera();
-		pageManager = new PageManager(renderer.getHud(), window);
+		pageManager = new PageManager(renderer.getHud(), window, this);
 
 		camera.setRotation(new Vector3f(90, 0, 0));
 		camera.setPosition(new Vector3f(0, 20, 0));
@@ -61,10 +58,10 @@ public class MainLoxy implements IGame {
 	public void update(Input input) {
 		pageManager.update(input, player, renderer.getHud());
 		boolean isTickUpdate = tick.update();
-		if ("Menu".equalsIgnoreCase(pageManager.getPage())) {
+		if (!"In Game".equalsIgnoreCase(pageManager.getPage())) {
 			if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null)
 				map.update(scene, player, isTickUpdate);
-		} else if("In Game".equalsIgnoreCase(pageManager.getPage())) {
+		} else {
 			player.update(input, map, window);
 			if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null)
 				map.update(scene, player, isTickUpdate);
@@ -81,13 +78,10 @@ public class MainLoxy implements IGame {
 
 	@Override
 	public void keyInput(int key, int action) {
-		// Close the window
-		if (key == GLFW_KEY_ESCAPE && action == GLFW_REPEAT)
-			glfwSetWindowShouldClose(window.getID(), true);
 		// FullScreen
 		if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
 			window.setFullscreen(!window.isFullscreen());
-		// FullScreen
+		// FPS
 		if (key == GLFW_KEY_F12 && action == GLFW_PRESS)
 			System.out.println("[Info] Fps : " + window.getFps());
 	}
