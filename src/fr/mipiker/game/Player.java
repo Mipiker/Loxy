@@ -1,15 +1,43 @@
 package fr.mipiker.game;
 
-import static org.lwjgl.glfw.GLFW.*;
-import org.joml.*;
-import fr.mipiker.game.item.*;
-import fr.mipiker.game.item.gate.*;
-import fr.mipiker.game.tiles.*;
-import fr.mipiker.game.tiles.gate.*;
-import fr.mipiker.game.ui.*;
-import fr.mipiker.isisEngine.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_A;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_D;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_E;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_F4;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_F5;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_CONTROL;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_S;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import org.joml.Intersectionf;
+import org.joml.Planef;
+import org.joml.Rayf;
+import org.joml.Vector2f;
+import org.joml.Vector2i;
+import org.joml.Vector3f;
+import fr.mipiker.game.item.Item;
+import fr.mipiker.game.item.PowerItem;
+import fr.mipiker.game.item.WireItem;
+import fr.mipiker.game.item.gate.AndGateItem;
+import fr.mipiker.game.item.gate.InvGateItem;
+import fr.mipiker.game.item.gate.OrGateItem;
+import fr.mipiker.game.item.gate.XorGateItem;
+import fr.mipiker.game.tiles.Empty;
+import fr.mipiker.game.tiles.EnumTiles;
+import fr.mipiker.game.tiles.Switch;
+import fr.mipiker.game.tiles.Tile;
+import fr.mipiker.game.tiles.Wire;
+import fr.mipiker.game.tiles.gate.Gate;
+import fr.mipiker.game.ui.Slot;
+import fr.mipiker.game.ui.SlotBar;
+import fr.mipiker.isisEngine.Camera;
+import fr.mipiker.isisEngine.Hud;
+import fr.mipiker.isisEngine.Input;
+import fr.mipiker.isisEngine.Window;
 import fr.mipiker.isisEngine.utils.SelectionUtils;
-import java.lang.Math;
 
 public class Player {
 
@@ -118,8 +146,6 @@ public class Player {
 	}
 
 	public void updateSlotBar(Input input, Window window) {
-		if (window.isResized())
-			resetPosSlotBar(window);
 		if (input.isMouseScroll()) {
 			slotBar.getSelectedSlot().getComponentSlot().getTransformation().translate(0, -Slot.SIZE, 0);
 			if (slotBar.getSelectedSlot().hasItem())
@@ -142,7 +168,7 @@ public class Player {
 		resetPosSlotBar(window);
 	}
 
-	private void resetPosSlotBar(Window window) {
+	public void resetPosSlotBar(Window window) {
 		int spacebtw = 10;
 		float posX = (window.getSize().x / 2f) - (((Slot.SIZE + spacebtw) * slotBar.getSize()) / 2f);
 		for (int i = 0; i < slotBar.getSize(); i++) {

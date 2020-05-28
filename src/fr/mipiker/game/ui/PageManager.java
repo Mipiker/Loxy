@@ -181,6 +181,7 @@ public class PageManager {
 		case "In Game":
 			if (firstRender) {
 				player.getSlotBar().show(hud);
+				player.resetPosSlotBar(window);
 				firstRender = false;
 			}
 			break;
