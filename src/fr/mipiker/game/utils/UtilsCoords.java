@@ -1,6 +1,7 @@
 package fr.mipiker.game.utils;
 
 import org.joml.Vector2i;
+
 import fr.mipiker.game.Chunk;
 
 public class UtilsCoords {

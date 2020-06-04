@@ -5,7 +5,7 @@ import java.util.Properties;
 
 public class Settings {
 
-	private static final File file = new File("settings.pro");
+	private static final File file = new File("general.settings");
 
 	private static Properties prop = new Properties();
 

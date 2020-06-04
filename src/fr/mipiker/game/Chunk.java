@@ -1,8 +1,11 @@
 package fr.mipiker.game;
 
 import static fr.mipiker.game.tiles.EnumProperty.ONLY_TICK_UPDATE;
+
 import java.util.ArrayList;
+
 import org.joml.Vector2i;
+
 import fr.mipiker.game.tiles.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.utils.GreedyMeshUtils;

@@ -1,5 +1,7 @@
 package fr.mipiker.game.tiles;
 
+import fr.mipiker.game.tiles.gate.Gate;
+
 public interface Powering {
 
 	public void setPower(boolean power);

@@ -1,9 +1,11 @@
 package fr.mipiker.game;
 
-import java.io.*;
-import fr.mipiker.game.utils.UtilsSave;
-import fr.mipiker.isisEngine.*;
 import static fr.mipiker.game.Settings.*;
+
+import java.io.*;
+
+import fr.mipiker.game.utils.UtilsMapIO;
+import fr.mipiker.isisEngine.Engine;
 
 public class Command implements Runnable {
 
@@ -34,10 +36,11 @@ public class Command implements Runnable {
 				if ("save".equalsIgnoreCase(args[0])) {
 					if (args.length == 2)
 						game.getMap().setName(args[1]);
-					if (UtilsSave.save(game.getMap(), game.getPlayer()))
+					if (UtilsMapIO.save(game.getMap(), game.getPlayer()))
 						System.out.println("[Info] Map " + game.getMap().getName() + " successfully saved.");
 					else
-						System.out.println("[Error] Couldn't save map " + game.getMap().getName() + ". Maybe the syntax of the given name contains unwanted charaters.");
+						System.out.println("[Error] Couldn't save map " + game.getMap().getName()
+								+ ". Maybe the syntax of the given name contains unwanted charaters.");
 				}
 
 				else if ("create".equalsIgnoreCase(args[0])) {
@@ -61,18 +64,20 @@ public class Command implements Runnable {
 						}
 
 					} else if ("load".equalsIgnoreCase(args[0])) {
-						Map map = UtilsSave.load(game.getPlayer(), args[1]);
+						Map map = UtilsMapIO.load(game.getPlayer(), args[1]);
 						if (map != null) {
 							game.setMap(map);
 							System.out.println("[Info] Map " + args[1] + " successfully loaded.");
 						} else
-							System.out.println("[Error] Couldn't load map " + args[1] + ". Maybe the given name doesn't correspond to any saved map.");
+							System.out.println("[Error] Couldn't load map " + args[1]
+									+ ". Maybe the given name doesn't correspond to any saved map.");
 
 					} else if ("delete".equalsIgnoreCase(args[0])) {
-						if (UtilsSave.delete(args[1]))
+						if (UtilsMapIO.delete(args[1]))
 							System.out.println("[Info] Map " + args[1] + " successfully deleted.");
 						else
-							System.out.println("[Error] Couldn't delete map " + args[1] + ". Maybe the given name doesn't correspond to any saved map.");
+							System.out.println("[Error] Couldn't delete map " + args[1]
+									+ ". Maybe the given name doesn't correspond to any saved map.");
 
 					} else if ("rename".equalsIgnoreCase(args[0]))
 						game.getMap().setName(args[1]);

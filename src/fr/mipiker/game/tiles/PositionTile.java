@@ -1,6 +1,7 @@
 package fr.mipiker.game.tiles;
 
-import org.joml.*;
+import org.joml.Vector2i;
+
 import fr.mipiker.game.Chunk;
 import fr.mipiker.game.utils.UtilsCoords;
 

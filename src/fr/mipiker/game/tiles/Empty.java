@@ -1,6 +1,7 @@
 package fr.mipiker.game.tiles;
 
 import java.util.HashMap;
+
 import fr.mipiker.game.Chunk;
 
 public class Empty extends Tile {

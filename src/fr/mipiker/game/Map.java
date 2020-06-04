@@ -1,20 +1,16 @@
 package fr.mipiker.game;
 
 import static fr.mipiker.game.Settings.RENDER_DISTANCE;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.EAST;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.NORTH;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.SOUTH;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.WEST;
-import java.util.ArrayList;
-import java.util.HashMap;
+import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
+
+import java.util.*;
 import java.util.Map.Entry;
+
 import org.joml.Vector2i;
-import fr.mipiker.game.tiles.EnumCardinalPoint;
-import fr.mipiker.game.tiles.PositionTile;
-import fr.mipiker.game.tiles.Tile;
+
+import fr.mipiker.game.tiles.*;
 import fr.mipiker.game.utils.UtilsCoords;
-import fr.mipiker.isisEngine.Mesh;
-import fr.mipiker.isisEngine.Scene;
+import fr.mipiker.isisEngine.*;
 
 public class Map {
 

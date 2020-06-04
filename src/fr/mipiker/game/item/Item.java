@@ -1,6 +1,7 @@
 package fr.mipiker.game.item;
 
 import java.util.HashMap;
+
 import fr.mipiker.isisEngine.Texture;
 
 public abstract class Item {

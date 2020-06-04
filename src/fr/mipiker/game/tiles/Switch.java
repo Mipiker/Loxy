@@ -2,6 +2,7 @@ package fr.mipiker.game.tiles;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
+
 import fr.mipiker.game.Chunk;
 
 public class Switch extends Tile implements Powering {

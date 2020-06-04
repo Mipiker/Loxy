@@ -1,12 +1,14 @@
 package fr.mipiker.game.tiles;
 
+import static fr.mipiker.game.tiles.EnumCardinalPoint.NORTH;
+
 import java.util.*;
 import java.util.Map.Entry;
-import fr.mipiker.game.*;
+
+import fr.mipiker.game.Chunk;
 import fr.mipiker.game.tiles.gate.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.loader.Assimp;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
 
 public abstract class Tile {
 

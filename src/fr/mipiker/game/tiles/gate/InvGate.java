@@ -1,6 +1,7 @@
 package fr.mipiker.game.tiles.gate;
 
 import java.util.HashMap;
+
 import fr.mipiker.game.Chunk;
 import fr.mipiker.game.tiles.*;
 

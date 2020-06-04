@@ -1,9 +1,11 @@
 package fr.mipiker.game.tiles;
 
+import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
+
 import java.util.*;
 import java.util.Map.Entry;
+
 import fr.mipiker.game.Chunk;
-import static fr.mipiker.game.tiles.EnumCardinalPoint.*;
 
 // Need some refactoring
 public class Wire extends Tile implements Powering {

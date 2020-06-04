@@ -1,60 +1,52 @@
 package fr.mipiker.game.ui;
 
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
-import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
-import org.joml.Vector2f;
-import org.joml.Vector4f;
-import fr.mipiker.isisEngine.Hud;
-import fr.mipiker.isisEngine.HudTextComponent;
-import fr.mipiker.isisEngine.Input;
+import static org.lwjgl.glfw.GLFW.*;
+
+import org.joml.*;
+
+import fr.mipiker.isisEngine.*;
 
 class Button {
 
-	private String text;
-	private HudTextComponent component;
-	private ButtonHoveredLeftClickCallback onHoveredLeftClick;
+	protected String text;
+	protected HudTextComponent textComponent;
+	protected ButtonHoveredLeftClickCallback onHoveredLeftClick;
 	private ButtonAlignedLeftClickCallback onAlignedLeftClick;
 	private ButtonAlignedRightClickCallback onAlignedRightClick;
 	private ButtonMouseAlignedCallback onMouseAligned;
 	private ButtonMouseHoveredCallback onMouseHovered;
-	private Vector2f pos;
-	private boolean selected;
+	protected Vector2f pos;
+	protected boolean selected;
+	private Vector4f selectedColor;
+	protected Hud hud;
 
 	Button(String text, Hud hud) {
-		pos = new Vector2f(0);
+		pos = new Vector2f(-1000); // Better way to do this
 		this.text = text;
-		resetComponent(hud);
-	}
-	Button(Button b) {
-		text = b.text;
-		component = new HudTextComponent(b.component);
-		onHoveredLeftClick = b.onHoveredLeftClick;
-		onAlignedLeftClick = b.onAlignedLeftClick;
-		onAlignedRightClick = b.onAlignedRightClick;
-		onMouseAligned = b.onMouseAligned;
-		onMouseHovered = b.onMouseHovered;
-		pos = new Vector2f(b.pos);
+		this.hud = hud;
+		resetTextComponent();
 	}
 
 	void update(Input input, Vector2f windowSize, Vector2f pos) {
 		this.pos = pos;
-		component.getTransformation().scaling(1f);
-		component.setPos(new Vector2f(pos));
-		if (input.getMousePosY() < windowSize.y - pos.y && input.getMousePosY() > windowSize.y - pos.y - component.getSize().y) {
+		textComponent.getTransformation().scaling(1f);
+		textComponent.setPos(new Vector2f(pos));
+		if (input.getMousePosY() < windowSize.y - pos.y
+				&& input.getMousePosY() > windowSize.y - pos.y - textComponent.getSize().y) {
 			if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT) && onAlignedLeftClick != null)
 				onAlignedLeftClick.onLeftClick();
 			if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT) && onAlignedRightClick != null)
 				onAlignedRightClick.onRightClick();
 			if (onMouseAligned != null)
 				onMouseAligned.onMouseAligned();
-			if (input.getMousePosX() > pos.x && input.getMousePosX() < pos.x + component.getSize().x) {
+			if (input.getMousePosX() > pos.x && input.getMousePosX() < pos.x + textComponent.getSize().x) {
 				if (onMouseHovered != null)
 					onMouseHovered.onHovered();
 				if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT) && onHoveredLeftClick != null)
 					onHoveredLeftClick.onLeftClick();
 			}
 		}
-			component.setColor(selected ? new Vector4f(0.4f, 0.69f, .19f, 1) : new Vector4f(1));
+		textComponent.setColor(selected ? selectedColor : new Vector4f(1));
 	}
 
 	void setHoveredLeftClickCallback(ButtonHoveredLeftClickCallback onHoveredLeftClick) {
@@ -73,27 +65,28 @@ class Button {
 		this.onMouseHovered = onMouseHovered;
 	}
 
-	void show(Hud hud) {
-		hud.replaceComponent(component);
+	void show() {
+		hud.replaceComponent(textComponent);
 	}
-	void unShow(Hud hud) {
-		hud.removeComponent(component);
+	void unShow() {
+		hud.removeComponent(textComponent);
 	}
 
-	void resetComponent(Hud hud) {
-		unShow(hud);
-		component = new HudTextComponent(PageManager.font, text);
+	void resetTextComponent() {
+		unShow();
+		textComponent = new HudTextComponent(PageManager.font, text);
+		textComponent.setPos(pos);
 	}
 	HudTextComponent getComponent() {
-		return component;
+		return textComponent;
 	}
 
 	String getText() {
 		return text;
 	}
-	void setText(String text, Hud hud) {
+	void setText(String text) {
 		this.text = text;
-		resetComponent(hud);
+		resetTextComponent();
 	}
 
 	Vector2f getPos() {
@@ -105,5 +98,8 @@ class Button {
 
 	void setSelected(boolean selected) {
 		this.selected = selected;
+	}
+	void setSelectedColor(Vector4f color) {
+		selectedColor = color;
 	}
 }

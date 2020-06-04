@@ -11,5 +11,10 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Loxy/lib/lib/all_natives"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/lib/apache-commonsIO/commons-io-2.7.jar" sourcepath="lib/lib/apache-commonsIO/commons-io-2.7-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Loxy/lib/lib/apache-commonsIO/commons-io-2.7-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
