@@ -11,7 +11,7 @@ uniform int background;
 uniform int hasTexture;
 uniform int frame;
 uniform vec2 size;
-uniform vec4 frameColor;
+uniform float roundCornerSize;
 
 void main() {
 	fragColor = color;
@@ -22,11 +22,26 @@ void main() {
 		fragColor = vec4(fragColor.x, fragColor.y, fragColor.z, max(0.5, fragColor.w));
 	}
 	if(frame == 1) {
-		if(size.x - exPosition.x < 1
-			|| exPosition.x < 1
-			|| size.y - exPosition.y < 1
-			|| exPosition.y < 1) {
-			fragColor = frameColor;	
+		if(size.x - exPosition.x < roundCornerSize && size.y - exPosition.y < roundCornerSize) { // Top right
+			vec2 d = (size - vec2(roundCornerSize, roundCornerSize)) - exPosition;
+			if(d.x * d.x + d.y * d.y > roundCornerSize * roundCornerSize) {
+				fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+			}
+		} else if(exPosition.x < roundCornerSize && exPosition.y < roundCornerSize) { // Bottom left
+			vec2 d = vec2(roundCornerSize, roundCornerSize) - exPosition;
+			if(d.x * d.x + d.y * d.y > roundCornerSize * roundCornerSize) {
+				fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+			}
+		} else if(size.x - exPosition.x < roundCornerSize && exPosition.y < roundCornerSize){ // Top right
+			vec2 d = vec2(size.x - roundCornerSize - exPosition.x, roundCornerSize - exPosition.y);
+			if(d.x * d.x + d.y * d.y > roundCornerSize * roundCornerSize) {
+				fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+			}
+		} else if( exPosition.x < roundCornerSize && size.y - exPosition.y < roundCornerSize ) { // Top left
+			vec2 d = vec2(roundCornerSize - exPosition.x, size.y - roundCornerSize - exPosition.y);
+			if(d.x * d.x + d.y * d.y > roundCornerSize * roundCornerSize) {
+				fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+			}
 		}
 	}
 }
