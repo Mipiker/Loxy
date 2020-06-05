@@ -40,6 +40,7 @@ public class PageManager {
 		bMenu.put("Continue", new Button("Continue", hud));
 		bMenu.get("Continue").setHoveredLeftClickCallback(() -> {
 			page = "In Game";
+			Settings.LAST_PLAYED_MAP_NAME = game.getMap().getName();
 			unShow(bMenu, hud);
 			firstRender = true;
 		});
@@ -102,7 +103,6 @@ public class PageManager {
 		});
 		b.setHoveredLeftClickCallback(() -> {
 			page = "Menu";
-			Settings.save();
 			firstRender = true;
 			unShow(bOptions, hud);
 		});
@@ -277,6 +277,7 @@ public class PageManager {
 					page = "In Game";
 					unShow(bWorld, hud);
 					firstRender = true;
+					Settings.LAST_PLAYED_MAP_NAME = game.getMap().getName();
 				} else if ("Copy".equalsIgnoreCase(selectedActionWorld)) {
 					UtilsMapIO.copy(s, s + " - Copy");
 					resetButtonWorld(hud, game);
@@ -312,6 +313,7 @@ public class PageManager {
 			page = "In Game";
 			unShow(bNewWorld, hud);
 			firstRender = true;
+			Settings.LAST_PLAYED_MAP_NAME = game.getMap().getName();
 		});
 		for (Button b1 : bNewWorld.values()) {
 			b1.setHoveredCallback(() -> {

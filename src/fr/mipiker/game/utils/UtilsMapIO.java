@@ -1,6 +1,6 @@
 package fr.mipiker.game.utils;
 
-import static org.apache.commons.io.FileUtils.copyDirectory;
+import static org.apache.commons.io.FileUtils.*;
 
 import java.io.*;
 import java.util.Map.Entry;
@@ -44,7 +44,8 @@ public class UtilsMapIO {
 			}
 		}
 		// Setting
-		try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(new File("save/" + map.getName() + "/setting.stt")))) {
+		try (DataOutputStream dos = new DataOutputStream(
+				new FileOutputStream(new File("save/" + map.getName() + "/map.settings")))) {
 			// Player
 			dos.writeFloat(player.getCamera().getPosition().x);
 			dos.writeFloat(player.getCamera().getPosition().y);
@@ -68,7 +69,8 @@ public class UtilsMapIO {
 		if (!new File("save/" + name + "/chunk").isDirectory())
 			return null;
 		// Setting
-		try (DataInputStream dis = new DataInputStream(new FileInputStream(new File("save/" + name + "/setting.stt")))) {
+		try (DataInputStream dis = new DataInputStream(
+				new FileInputStream(new File("save/" + name + "/map.settings")))) {
 			player.getCamera().setPosition(new Vector3f(dis.readFloat(), dis.readFloat(), dis.readFloat())); // Player
 			Chunk.SIZE = dis.readInt();
 		} catch (IOException e) {
@@ -82,10 +84,12 @@ public class UtilsMapIO {
 			int chunkX = Integer.parseInt(pos[0]);
 			int chunkY = Integer.parseInt(pos[1]);
 			Chunk chunk = new Chunk(new Vector2i(chunkX, chunkY), map);
-			try (DataInputStream dis = new DataInputStream(new FileInputStream(new File("save/" + name + "/chunk/" + fileName)))) {
+			try (DataInputStream dis = new DataInputStream(
+					new FileInputStream(new File("save/" + name + "/chunk/" + fileName)))) {
 				for (int y = 0; y < Chunk.SIZE; y++) {
 					for (int x = 0; x < Chunk.SIZE; x++) {
-						Tile tile = Tile.newTile(EnumTiles.getTile(dis.readByte()), chunk, new PositionTile(chunk.getPos(), new Vector2i(x, y))); // Type
+						Tile tile = Tile.newTile(EnumTiles.getTile(dis.readByte()), chunk,
+								new PositionTile(chunk.getPos(), new Vector2i(x, y))); // Type
 						chunk.setTile(tile);
 						if (tile instanceof Gate)
 							tile.setOrientation(EnumCardinalPoint.getOrientation(dis.readByte())); // Orientation
@@ -111,14 +115,13 @@ public class UtilsMapIO {
 	 *            the name of folder where is saved the map
 	 */
 	public static boolean delete(String name) {
-		for (File file : new File("save/" + name).listFiles())
-			if (file.isDirectory()) {
-				for (File file_ : new File(file.getPath()).listFiles())
-					file_.delete();
-				file.delete();
-			} else
-				file.delete();
-		return new File("save/" + name).delete();
+		try {
+			deleteDirectory(new File("save/" + name));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 
 	public static boolean copy(String mapName, String copyMapName) {

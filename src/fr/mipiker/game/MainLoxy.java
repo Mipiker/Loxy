@@ -7,6 +7,7 @@ import org.joml.*;
 import fr.mipiker.game.item.Item;
 import fr.mipiker.game.tiles.Tile;
 import fr.mipiker.game.ui.PageManager;
+import fr.mipiker.game.utils.UtilsMapIO;
 import fr.mipiker.isisEngine.*;
 
 public class MainLoxy implements IGame {
@@ -43,7 +44,8 @@ public class MainLoxy implements IGame {
 		player = new Player(scene.getCamera(), renderer.getHud(), window);
 
 		command = new Command(this, engine);
-		command.prepareCommand("/map load adder");
+
+		setMap(UtilsMapIO.load(player, Settings.LAST_PLAYED_MAP_NAME));
 	}
 
 	@Override
@@ -83,6 +85,7 @@ public class MainLoxy implements IGame {
 	@Override
 	public void terminate() {
 		command.term();
+		Settings.save();
 	}
 
 	public static void main(String[] args) {
