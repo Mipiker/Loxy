@@ -68,8 +68,6 @@ public class PageManager {
 		// Option
 		bOptions.put("Render Distance", new Button("Render Distance", hud));
 		bOptions.put("Value Render Distance", new Button(Integer.toString(Settings.RENDER_DISTANCE), hud));
-		bOptions.put("Default Chunk Size", new Button("Default Chunk Size", hud));
-		bOptions.put("Value Default Chunk Size", new Button(Integer.toString(Settings.DEFAULT_CHUNK_SIZE), hud));
 		for (Button b : bOptions.values()) {
 			b.setMouseAlignedCallback(() -> {
 				b.getComponent().getTransformation().scaling(1.25f);
@@ -84,16 +82,6 @@ public class PageManager {
 			if (Settings.RENDER_DISTANCE > 1) {
 				Settings.RENDER_DISTANCE--;
 				bOptions.get("Value Render Distance").setText(Integer.toString(Settings.RENDER_DISTANCE));
-			}
-		});
-		bOptions.get("Value Default Chunk Size").setAlignedLeftClickCallback(() -> {
-			Settings.DEFAULT_CHUNK_SIZE++;
-			bOptions.get("Value Default Chunk Size").setText(Integer.toString(Settings.DEFAULT_CHUNK_SIZE));
-		});
-		bOptions.get("Value Default Chunk Size").setAlignedRightClickCallback(() -> {
-			if (Settings.DEFAULT_CHUNK_SIZE > 1) {
-				Settings.DEFAULT_CHUNK_SIZE--;
-				bOptions.get("Value Default Chunk Size").setText(Integer.toString(Settings.DEFAULT_CHUNK_SIZE));
 			}
 		});
 		Button b = new Button("Back", hud);
@@ -134,10 +122,6 @@ public class PageManager {
 					new Vector2f(margin, windowSize.y - margin - height));
 			bOptions.get("Value Render Distance").update(input, windowSize,
 					new Vector2f(windowSize.x - margin, windowSize.y - margin - height));
-			bOptions.get("Default Chunk Size").update(input, windowSize,
-					new Vector2f(margin, windowSize.y - margin - height * 2));
-			bOptions.get("Value Default Chunk Size").update(input, windowSize,
-					new Vector2f(windowSize.x - margin, windowSize.y - margin - height * 2));
 			bOptions.get("Back").update(input, windowSize, new Vector2f(margin));
 			break;
 		case "In Game":
@@ -171,6 +155,10 @@ public class PageManager {
 			bNewWorld.get("Back").update(input, windowSize, new Vector2f(margin));
 			bNewWorld.get("World Name").update(input, windowSize,
 					new Vector2f(windowSize.x / 2, windowSize.y - margin - height));
+			bNewWorld.get("Chunk Size").update(input, windowSize,
+					new Vector2f(windowSize.x / 2, windowSize.y - margin - height * 2));
+			bNewWorld.get("Value Chunk Size").update(input, windowSize,
+					new Vector2f(windowSize.x - margin, windowSize.y - margin - height * 2));
 			break;
 		}
 	}
@@ -226,8 +214,12 @@ public class PageManager {
 					firstRender = false;
 				}
 			}
-			for (Button b : bNewWorld.values())
-				b.show();
+			for (Button b : bNewWorld.values()) {
+				if (b != bNewWorld.get("Chunk Size") || b != bNewWorld.get("Value Chunk Size"))
+					b.show();
+			}
+			bNewWorld.get("Chunk Size").show(); // Should be better with a priority render call
+			bNewWorld.get("Value Chunk Size").show();
 			break;
 		}
 	}
@@ -309,11 +301,24 @@ public class PageManager {
 		bNewWorld.put("World Name", new TextInput(hud, "Loxy World"));
 		bNewWorld.put("Create", new Button("Create", hud));
 		bNewWorld.get("Create").setHoveredLeftClickCallback(() -> {
+			Chunk.SIZE = Integer.parseInt(bNewWorld.get("Value Chunk Size").getText());
 			game.setMap(new Map(bNewWorld.get("World Name").getText()));
 			page = "In Game";
 			unShow(bNewWorld, hud);
 			firstRender = true;
 			Settings.LAST_PLAYED_MAP_NAME = game.getMap().getName();
+		});
+		bNewWorld.put("Chunk Size", new Button("Chunk Size", hud));
+		bNewWorld.put("Value Chunk Size", new Button(Integer.toString(Settings.DEFAULT_CHUNK_SIZE), hud));
+		bNewWorld.get("Chunk Size").setHoveredLeftClickCallback(() -> {
+			Settings.DEFAULT_CHUNK_SIZE++; // Not the good way to do this
+			bNewWorld.get("Value Chunk Size").setText(Integer.toString(Settings.DEFAULT_CHUNK_SIZE));
+		});
+		bNewWorld.get("Chunk Size").setHoveredRightClickCallback(() -> {
+			if (Settings.DEFAULT_CHUNK_SIZE > 1) {
+				Settings.DEFAULT_CHUNK_SIZE--;
+				bNewWorld.get("Value Chunk Size").setText(Integer.toString(Settings.DEFAULT_CHUNK_SIZE));
+			}
 		});
 		for (Button b1 : bNewWorld.values()) {
 			b1.setHoveredCallback(() -> {

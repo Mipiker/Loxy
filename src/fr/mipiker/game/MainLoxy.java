@@ -50,16 +50,18 @@ public class MainLoxy implements IGame {
 
 	@Override
 	public void update(Input input) {
+		if (map == null)
+			setMap(new Map());
 		pageManager.update(input, player, renderer.getHud());
 		boolean isTickUpdate = tick.update();
 		if (!"In Game".equalsIgnoreCase(pageManager.getPage())) {
 			scene.setBlur(true);
-			if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null)
+			if (engine.getNbUpdate() % nbMapUpdate == 0)
 				map.update(scene, player, isTickUpdate);
 		} else {
 			scene.setBlur(false);
 			player.update(input, map, window);
-			if (engine.getNbUpdate() % nbMapUpdate == 0 && map != null)
+			if (engine.getNbUpdate() % nbMapUpdate == 0)
 				map.update(scene, player, isTickUpdate);
 		}
 	}

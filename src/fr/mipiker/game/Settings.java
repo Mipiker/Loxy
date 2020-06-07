@@ -32,7 +32,6 @@ public class Settings {
 			RENDER_DISTANCE = Integer.parseInt((String) prop.get("RENDER_DISTANCE"));
 			DEFAULT_CHUNK_SIZE = Integer.parseInt((String) prop.get("DEFAULT_CHUNK_SIZE"));
 			LAST_PLAYED_MAP_NAME = (String) prop.get("LAST_PLAYED_MAP_NAME");
-			System.out.println();
 			System.out.println("[Info] Settings loaded");
 		} catch (IOException e) {
 			e.printStackTrace();

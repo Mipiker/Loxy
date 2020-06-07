@@ -11,6 +11,7 @@ class Button {
 	protected String text;
 	protected HudTextComponent textComponent;
 	protected ButtonHoveredLeftClickCallback onHoveredLeftClick;
+	private ButtonHoveredRightClickCallback onHoveredRightClick;
 	private ButtonAlignedLeftClickCallback onAlignedLeftClick;
 	private ButtonAlignedRightClickCallback onAlignedRightClick;
 	private ButtonMouseAlignedCallback onMouseAligned;
@@ -44,6 +45,8 @@ class Button {
 					onMouseHovered.onHovered();
 				if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT) && onHoveredLeftClick != null)
 					onHoveredLeftClick.onLeftClick();
+				if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT) && onHoveredRightClick != null)
+					onHoveredRightClick.onRightClick();
 			}
 		}
 		textComponent.setColor(selected ? selectedColor : new Vector4f(1));
@@ -51,6 +54,9 @@ class Button {
 
 	void setHoveredLeftClickCallback(ButtonHoveredLeftClickCallback onHoveredLeftClick) {
 		this.onHoveredLeftClick = onHoveredLeftClick;
+	}
+	void setHoveredRightClickCallback(ButtonHoveredRightClickCallback onHoveredRightClick) {
+		this.onHoveredRightClick = onHoveredRightClick;
 	}
 	void setAlignedLeftClickCallback(ButtonAlignedLeftClickCallback onAlignedLeftClick) {
 		this.onAlignedLeftClick = onAlignedLeftClick;

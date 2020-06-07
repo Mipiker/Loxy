@@ -15,10 +15,10 @@ uniform float roundCornerSize;
 
 void main() {
 	fragColor = color;
-	if(hasTexture == 1){
+	if(hasTexture == 1) {
 		fragColor = fragColor * texture(texture0, exTextCoord);
 	}
-	if(background == 1){
+	if(background == 1) {
 		fragColor = vec4(fragColor.x, fragColor.y, fragColor.z, max(0.5, fragColor.w));
 	}
 	if(frame == 1) {
