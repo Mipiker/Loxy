@@ -103,7 +103,7 @@ public class PageManager {
 		resetButtonNewWorld(hud, game);
 	}
 
-	public void update(Input input, Player player, Hud hud) {
+	public void update(Input input, Player player, Hud hud, MainLoxy game) {
 		Vector2f windowSize = new Vector2f(window.getSize());
 
 		margin = windowSize.y * 0.25f;
@@ -129,6 +129,7 @@ public class PageManager {
 				page = "Menu";
 				firstRender = true;
 				player.getSlotBar().unShow(hud);
+				UtilsMapIO.save(game.getMap(), game.getPlayer());
 			}
 			break;
 		case "World":

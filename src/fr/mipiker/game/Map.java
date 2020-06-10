@@ -9,28 +9,43 @@ import java.util.Map.Entry;
 import org.joml.Vector2i;
 
 import fr.mipiker.game.tiles.*;
-import fr.mipiker.game.utils.UtilsCoords;
+import fr.mipiker.game.utils.*;
 import fr.mipiker.isisEngine.*;
 
 public class Map {
 
-	private String name = "Loxy world";
+	private String name;
 	private HashMap<Vector2i, Chunk> chunks = new HashMap<>();
 	private ArrayList<Chunk> chunkToUpdate = new ArrayList<>();
+	private ArrayList<Vector2i> chunkToSave = new ArrayList<>();
+	private Timer autoSaveTimer;
+	private boolean unloadChunks;
 
 	public Map() {
+		this("Loxy World");
 	}
 	public Map(String name) {
 		this.name = name;
+		autoSaveTimer = new Timer();
+		autoSaveTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				for (Vector2i pos : chunkToSave)
+					UtilsMapIO.saveChunk(name, chunks.get(pos));
+				unloadChunks = true;
+			}
+		}, 0, Settings.AUTO_SAVE_TIME * 1000);
 	}
 	public Map(Map map) {
-		name = map.name;
+		this(map.name);
 		chunks = new HashMap<>(map.chunks);
 		chunkToUpdate = new ArrayList<>(map.chunkToUpdate);
 	}
 
 	public void update(Scene scene, Player player, boolean tickUpdate) {
-		generate(new Vector2i((int) player.getCamera().getPosition().x, (int) player.getCamera().getPosition().z), scene);
+		updateStateChunks(UtilsCoords.getChunkPosFromWorldPos(
+				new Vector2i((int) player.getCamera().getPosition().x, (int) player.getCamera().getPosition().z)),
+				scene);
 		Chunk[] chunkToUpdate = this.chunkToUpdate.toArray(new Chunk[this.chunkToUpdate.size()]);
 		this.chunkToUpdate.clear();
 		for (Chunk chunk : chunkToUpdate)
@@ -44,28 +59,46 @@ public class Map {
 			chunk.renderUpdate(scene);
 	}
 
-	public void generate(Vector2i pos, Scene scene) {
-		// Unload chunk out from render distance
-		Vector2i chunkPlayerPos = UtilsCoords.getChunkPosFromWorldPos(pos);
-		for (Entry<Vector2i, Chunk> e : chunks.entrySet()) {
-			Vector2i chunkPos = e.getKey();
-			if (chunkPlayerPos.distance(chunkPos) > RENDER_DISTANCE) { // If the chunk is in render distance
-				e.getValue().setCanRender(false);
-				for (Mesh mesh : e.getValue().getMeshesToRender())
+	private void updateStateChunks(Vector2i chunkPlayerPos, Scene scene) {
+		// Out of render distance
+		for (Entry<Vector2i, Chunk> e : chunks.entrySet()) { // facile
+			Vector2i distance = e.getKey().sub(chunkPlayerPos, new Vector2i());
+			// Out of render distance + 0
+			if (distance.x > RENDER_DISTANCE || distance.x < -RENDER_DISTANCE || distance.y > RENDER_DISTANCE
+					|| distance.y < -RENDER_DISTANCE) {
+				e.getValue().setCanRender(false); // Don't update it's render
+				for (Mesh mesh : e.getValue().getMeshesToRender()) // Unshow it
 					scene.removeMesh(mesh);
-			}
+				// Out of render distance + 1
+				if (distance.x > RENDER_DISTANCE + 1 || distance.x < -RENDER_DISTANCE - 1
+						|| distance.y > RENDER_DISTANCE + 1 || distance.y < -RENDER_DISTANCE - 1) {
+					if (!chunkToSave.contains(e.getKey())) // Save the chunk and free memory
+						chunkToSave.add(e.getKey());
+				} else
+					chunkToSave.remove(e.getKey()); // Keep the chunk loaded
+			} else
+				chunkToSave.remove(e.getKey()); // Keep the chunk loaded
 		}
 
-		// Create new chunk and load them
-		for (int y = chunkPlayerPos.y - RENDER_DISTANCE; y < chunkPlayerPos.y + RENDER_DISTANCE; y++) {
-			for (int x = chunkPlayerPos.x - RENDER_DISTANCE; x < chunkPlayerPos.x + RENDER_DISTANCE; x++) {
-				if (chunkPlayerPos.distance(x, y) < RENDER_DISTANCE) {
-					if (chunks.get(new Vector2i(x, y)) == null)
-						chunks.put(new Vector2i(x, y), new Chunk(new Vector2i(x, y), this));
-					if (!chunks.get(new Vector2i(x, y)).getCanRender())
-						chunks.get(new Vector2i(x, y)).setCanRender(true);
+		// In render distance
+		for (int y = chunkPlayerPos.y - RENDER_DISTANCE; y < chunkPlayerPos.y + RENDER_DISTANCE + 1; y++) {
+			for (int x = chunkPlayerPos.x - RENDER_DISTANCE; x < chunkPlayerPos.x + RENDER_DISTANCE + 1; x++) {
+				Vector2i chunkPos = new Vector2i(x, y);
+				if (chunks.get(chunkPos) == null) { // If the chunk isn't loaded
+					if (!UtilsMapIO.loadChunk(this, chunkPos)) // If the chunk isn't saved
+						chunks.put(chunkPos, new Chunk(chunkPos, this)); // Create a new one
 				}
+				if (!chunks.get(chunkPos).getCanRender()) // Allow it to update it's render
+					chunks.get(chunkPos).setCanRender(true);
+				chunkToSave.remove(chunkPos); // Keep the chunk loaded
 			}
+		}
+		// Unload chunks too out from render distance + 1
+		if (unloadChunks) {
+			for (Vector2i chunkPos : chunkToSave)
+				chunks.remove(chunkPos);
+			unloadChunks = false;
+			chunkToSave.clear();
 		}
 	}
 
@@ -118,5 +151,9 @@ public class Map {
 	}
 	public String getName() {
 		return name;
+	}
+
+	public void delete() {
+		autoSaveTimer.cancel();
 	}
 }
