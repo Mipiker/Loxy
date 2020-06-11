@@ -129,7 +129,12 @@ public class PageManager {
 				page = "Menu";
 				firstRender = true;
 				player.getSlotBar().unShow(hud);
-				UtilsMapIO.save(game.getMap(), game.getPlayer());
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						UtilsMapIO.save(game.getMap(), game.getPlayer());
+					}
+				}).start();
 			}
 			break;
 		case "World":

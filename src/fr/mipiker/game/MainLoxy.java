@@ -87,7 +87,12 @@ public class MainLoxy implements IGame {
 	@Override
 	public void terminate() {
 		command.term();
-		UtilsMapIO.save(map, player);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				UtilsMapIO.save(map, player);
+			}
+		}).start();
 		map.delete();
 		Settings.save();
 	}
