@@ -68,6 +68,8 @@ public class PageManager {
 		// Option
 		bOptions.put("Render Distance", new Button("Render Distance", hud));
 		bOptions.put("Value Render Distance", new Button(Integer.toString(Settings.RENDER_DISTANCE), hud));
+		bOptions.put("Auto Save Time", new Button("Auto Save Time", hud));
+		bOptions.put("Value Auto Save Time", new Button(Integer.toString(Settings.AUTO_SAVE_TIME) + "s", hud));
 		for (Button b : bOptions.values()) {
 			b.setMouseAlignedCallback(() -> {
 				b.getComponent().getTransformation().scaling(1.25f);
@@ -84,6 +86,19 @@ public class PageManager {
 				bOptions.get("Value Render Distance").setText(Integer.toString(Settings.RENDER_DISTANCE));
 			}
 		});
+		bOptions.get("Value Auto Save Time").setAlignedLeftClickCallback(() -> {
+			Settings.AUTO_SAVE_TIME++;
+			bOptions.get("Value Auto Save Time").setText(Integer.toString(Settings.AUTO_SAVE_TIME) + "s");
+			game.getMap().resetTimer();
+		});
+		bOptions.get("Value Auto Save Time").setAlignedRightClickCallback(() -> {
+			if (Settings.AUTO_SAVE_TIME > 1) {
+				Settings.AUTO_SAVE_TIME--;
+				bOptions.get("Value Auto Save Time").setText(Integer.toString(Settings.AUTO_SAVE_TIME) + "s");
+				game.getMap().resetTimer();
+			}
+		});
+
 		Button b = new Button("Back", hud);
 		b.setHoveredCallback(() -> {
 			b.getComponent().getTransformation().scaling(1.25f);
@@ -122,6 +137,10 @@ public class PageManager {
 					new Vector2f(margin, windowSize.y - margin - height));
 			bOptions.get("Value Render Distance").update(input, windowSize,
 					new Vector2f(windowSize.x - margin, windowSize.y - margin - height));
+			bOptions.get("Auto Save Time").update(input, windowSize,
+					new Vector2f(margin, windowSize.y - margin - height * 2));
+			bOptions.get("Value Auto Save Time").update(input, windowSize,
+					new Vector2f(windowSize.x - margin, windowSize.y - margin - height * 2));
 			bOptions.get("Back").update(input, windowSize, new Vector2f(margin));
 			break;
 		case "In Game":

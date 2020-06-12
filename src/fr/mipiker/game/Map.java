@@ -1,3 +1,4 @@
+
 package fr.mipiker.game;
 
 import static fr.mipiker.game.Settings.RENDER_DISTANCE;
@@ -26,15 +27,7 @@ public class Map {
 	}
 	public Map(String name) {
 		this.name = name;
-		autoSaveTimer = new Timer();
-		autoSaveTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				for (Vector2i pos : chunkToSave)
-					UtilsMapIO.saveChunk(name, chunks.get(pos));
-				unloadChunks = true;
-			}
-		}, 0, Settings.AUTO_SAVE_TIME * 1000);
+		resetTimer();
 	}
 	public Map(Map map) {
 		this(map.name);
@@ -155,5 +148,20 @@ public class Map {
 
 	public void delete() {
 		autoSaveTimer.cancel();
+	}
+
+	public void resetTimer() {
+		if (autoSaveTimer != null)
+			autoSaveTimer.cancel();
+		autoSaveTimer = new Timer();
+		autoSaveTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				for (Vector2i pos : chunkToSave)
+					UtilsMapIO.saveChunk(name, chunks.get(pos));
+				unloadChunks = true;
+			}
+		}, Settings.AUTO_SAVE_TIME * 1000, Settings.AUTO_SAVE_TIME * 1000);
+
 	}
 }
