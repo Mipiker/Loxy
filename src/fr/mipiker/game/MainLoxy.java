@@ -23,9 +23,10 @@ public class MainLoxy implements IGame {
 	private Engine engine;
 	private int nbMapUpdate = 1;
 	private PageManager pageManager;
+	private SoundManager soundManager;
 
 	@Override
-	public void init(Window window, Input input, Engine engine) {
+	public void init(Window window, Input input, SoundManager soundManager, Engine engine) {
 		Tile.load();
 		Item.loadItem();
 		Settings.load();
@@ -37,15 +38,34 @@ public class MainLoxy implements IGame {
 		scene = renderer.getScene();
 		camera = scene.getCamera();
 		pageManager = new PageManager(renderer.getHud(), window, this);
+		this.soundManager = soundManager;
 
 		camera.setRotation(new Vector3f(90, 0, 0));
 		camera.setPosition(new Vector3f(0, 20, 0));
 
-		player = new Player(scene.getCamera(), renderer.getHud(), window);
+		player = new Player(scene.getCamera(), renderer.getHud(), soundManager, window);
 
 		command = new Command(this, engine);
 
 		setMap(UtilsMapIO.load(player, Settings.LAST_PLAYED_MAP_NAME));
+
+		soundManager.setListener(new SoundListener(new Vector3f()));
+		SoundBuffer bufferAction = new SoundBuffer("resources/sounds/action.wav");
+		soundManager.addSoundBuffer(bufferAction);
+		SoundSource action = new SoundSource(false, true);
+		action.setBuffer(bufferAction.getBufferId());
+		soundManager.addSoundSource("action", action);
+		SoundBuffer bufferDelete = new SoundBuffer("resources/sounds/delete.wav");
+		soundManager.addSoundBuffer(bufferDelete);
+		SoundSource delete = new SoundSource(false, true);
+		delete.setBuffer(bufferDelete.getBufferId());
+		soundManager.addSoundSource("delete", delete);
+		SoundBuffer bufferPlace = new SoundBuffer("resources/sounds/place.wav");
+		soundManager.addSoundBuffer(bufferPlace);
+		SoundSource place = new SoundSource(false, true);
+		place.setBuffer(bufferPlace.getBufferId());
+		soundManager.addSoundSource("place", place);
+
 	}
 
 	@Override
@@ -95,6 +115,7 @@ public class MainLoxy implements IGame {
 		}).start();
 		map.delete();
 		Settings.save();
+		soundManager.cleanup();
 	}
 
 	public static void main(String[] args) {

@@ -21,9 +21,11 @@ public class Player {
 	private Tile selectedTile;
 	private SlotBar slotBar;
 	private Vector3f velocity = new Vector3f();
+	private SoundManager soundManager;
 
-	public Player(Camera camera, Hud hud, Window window) {
+	public Player(Camera camera, Hud hud, SoundManager soundManager, Window window) {
 		this.camera = camera;
+		this.soundManager = soundManager;
 		initSlotBar(hud, window);
 	}
 
@@ -67,13 +69,15 @@ public class Player {
 		// Select a tile
 		Tile newSelectedTile = null;
 		if (camera.getPosition().y < 100 && (input.isMouseMoved() || !velocity.equals(new Vector3f(0), 0.001f))) {
-			Vector3f dir = SelectionUtils.getRayFromMouse(new Vector2f(input.getMousePosX(), input.getMousePosY()), window, camera);
+			Vector3f dir = SelectionUtils.getRayFromMouse(new Vector2f(input.getMousePosX(), input.getMousePosY()),
+					window, camera);
 			Rayf ray = new Rayf(camera.getPosition(), dir);
 			Planef plane = new Planef(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(1, 0, 0));
 			float t = Intersectionf.intersectRayPlane(ray, plane, 0.0001f);
 			if (t != -1) {
 				Vector3f intersect = camera.getPosition().add(dir.mul(t), new Vector3f());
-				newSelectedTile = map.getTile(new Vector2i((int) Math.floor(intersect.x), (int) Math.floor(intersect.z)));
+				newSelectedTile = map
+						.getTile(new Vector2i((int) Math.floor(intersect.x), (int) Math.floor(intersect.z)));
 			}
 		}
 		if (selectedTile != null) {
@@ -83,35 +87,46 @@ public class Player {
 		if (newSelectedTile != null)
 			selectedTile = newSelectedTile;
 		if (selectedTile != null) {
-			selectedTile = actionSelect(input, map, selectedTile);
+			selectedTile = actionSelect(input, map, selectedTile, soundManager);
 			selectedTile.getMesh().getMaterial().setAmbientStrength(2);
 			selectedTile.getBelongChunk().resetMeshOnUpdate();
 		}
 	}
 
-	private Tile actionSelect(Input input, Map map, Tile tile) {
+	private Tile actionSelect(Input input, Map map, Tile tile, SoundManager soundManager) {
 		if (input.isMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT)) {
 			Item selected = slotBar.getSelectedSlot().getItem();
 			if (selected != null) {
 				EnumTiles type = EnumTiles.getTile(selected.TYPE);
 				if (type != null) {
-					tile = Tile.newTile(type, tile.getBelongChunk(), tile.getPos());
-					map.setTile(tile);
+					if (type != tile.TYPE) {
+						tile = Tile.newTile(type, tile.getBelongChunk(), tile.getPos());
+						map.setTile(tile);
+						// soundManager.playSoundSource("place");
+						soundManager.getSoundSource("place").play();
+					}
 				}
 			}
 		}
 		if (!(tile instanceof Empty) && input.isMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT)) {
 			tile = new Empty(tile.getBelongChunk(), tile.getPos());
 			map.setTile(tile);
+			soundManager.getSoundSource("delete").play();
 		}
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && tile instanceof Switch) {
-			System.out.println("action");
 			((Switch) tile).setPower(!((Switch) tile).isPowered());
+			soundManager.getSoundSource("action").play();
 		}
-		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Gate))
+		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Gate)) {
 			((Gate) tile).rotate();
-		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Wire))
-			((Wire) tile).setBridge(!((Wire) tile).isBridge());
+			soundManager.getSoundSource("action").play();
+		}
+		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Wire)) {
+			if (((Wire) tile).canBeBridged()) {
+				soundManager.getSoundSource("action").play();
+				((Wire) tile).setBridge(!((Wire) tile).isBridge());
+			}
+		}
 		if (input.getLastKeyState(GLFW_KEY_F5) == GLFW_PRESS)
 			tile.mustUpdate();
 		if (input.getLastKeyState(GLFW_KEY_F4) == GLFW_PRESS)
@@ -157,7 +172,7 @@ public class Player {
 		if (slotBar.getSelectedSlot().hasItem())
 			slotBar.getSelectedSlot().getComponentItem().getTransformation().translate(0, Slot.SIZE, 0);
 	}
-	
+
 	public SlotBar getSlotBar() {
 		return slotBar;
 	}
