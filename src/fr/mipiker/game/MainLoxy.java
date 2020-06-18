@@ -52,17 +52,17 @@ public class MainLoxy implements IGame {
 		soundManager.setListener(new SoundListener(new Vector3f()));
 		SoundBuffer bufferAction = new SoundBuffer("resources/sounds/action.wav");
 		soundManager.addSoundBuffer(bufferAction);
-		SoundSource action = new SoundSource(false, true);
+		SoundSource action = new SoundSource(false, false);
 		action.setBuffer(bufferAction.getBufferId());
 		soundManager.addSoundSource("action", action);
 		SoundBuffer bufferDelete = new SoundBuffer("resources/sounds/delete.wav");
 		soundManager.addSoundBuffer(bufferDelete);
-		SoundSource delete = new SoundSource(false, true);
+		SoundSource delete = new SoundSource(false, false);
 		delete.setBuffer(bufferDelete.getBufferId());
 		soundManager.addSoundSource("delete", delete);
 		SoundBuffer bufferPlace = new SoundBuffer("resources/sounds/place.wav");
 		soundManager.addSoundBuffer(bufferPlace);
-		SoundSource place = new SoundSource(false, true);
+		SoundSource place = new SoundSource(false, false);
 		place.setBuffer(bufferPlace.getBufferId());
 		soundManager.addSoundSource("place", place);
 

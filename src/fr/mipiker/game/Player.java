@@ -31,6 +31,9 @@ public class Player {
 
 	public void update(Input input, Map map, Window window) {
 		move(input);
+		soundManager.getListener().setPosition(camera.getPosition());
+		soundManager.getListener().setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
+				(float) (Math.random() * 100)));
 		updateSlotBar(input, window);
 		if (map != null)
 			select(input, map, window);
@@ -94,6 +97,7 @@ public class Player {
 	}
 
 	private Tile actionSelect(Input input, Map map, Tile tile, SoundManager soundManager) {
+		SoundSource ss;
 		if (input.isMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT)) {
 			Item selected = slotBar.getSelectedSlot().getItem();
 			if (selected != null) {
@@ -102,8 +106,11 @@ public class Player {
 					if (type != tile.TYPE) {
 						tile = Tile.newTile(type, tile.getBelongChunk(), tile.getPos());
 						map.setTile(tile);
-						// soundManager.playSoundSource("place");
-						soundManager.getSoundSource("place").play();
+						ss = soundManager.getSoundSource("place");
+						ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
+						ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
+								(float) (Math.random() * 100)));
+						ss.play();
 					}
 				}
 			}
@@ -111,19 +118,35 @@ public class Player {
 		if (!(tile instanceof Empty) && input.isMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT)) {
 			tile = new Empty(tile.getBelongChunk(), tile.getPos());
 			map.setTile(tile);
-			soundManager.getSoundSource("delete").play();
+			ss = soundManager.getSoundSource("delete");
+			ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
+			ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
+					(float) (Math.random() * 100)));
+			ss.play();
 		}
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && tile instanceof Switch) {
 			((Switch) tile).setPower(!((Switch) tile).isPowered());
-			soundManager.getSoundSource("action").play();
+			ss = soundManager.getSoundSource("action");
+			ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
+			ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
+					(float) (Math.random() * 100)));
+			ss.play();
 		}
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Gate)) {
 			((Gate) tile).rotate();
-			soundManager.getSoundSource("action").play();
+			ss = soundManager.getSoundSource("action");
+			ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
+			ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
+					(float) (Math.random() * 100)));
+			ss.play();
 		}
 		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Wire)) {
 			if (((Wire) tile).canBeBridged()) {
-				soundManager.getSoundSource("action").play();
+				ss = soundManager.getSoundSource("action");
+				ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
+				ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
+						(float) (Math.random() * 100)));
+				ss.play();
 				((Wire) tile).setBridge(!((Wire) tile).isBridge());
 			}
 		}
