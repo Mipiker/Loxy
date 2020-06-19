@@ -1,5 +1,6 @@
 package fr.mipiker.game.ui;
 
+import static fr.mipiker.game.ui.ButtonPositionY.BOTTOM;
 import static org.lwjgl.glfw.GLFW.*;
 
 import org.joml.*;
@@ -20,18 +21,21 @@ class Button {
 	protected boolean selected;
 	private Vector4f selectedColor;
 	protected Hud hud;
+	private ButtonPositionX posX;
+	private ButtonPositionY posY;
 
-	Button(String text, Hud hud) {
-		pos = new Vector2f(-1000); // Better way to do this
+	Button(String text, Hud hud, ButtonPositionX posX, ButtonPositionY posY) {
+		this.posX = posX;
+		this.posY = posY;
 		this.text = text;
 		this.hud = hud;
+		pos = new Vector2f(-1000); // Better way to do this
 		resetTextComponent();
 	}
 
-	void update(Input input, Vector2f windowSize, Vector2f pos) {
-		this.pos = pos;
+	void update(Input input, Vector2f windowSize, float margin, float fontHeight) {
 		textComponent.getTransformation().scaling(1f);
-		textComponent.setPos(new Vector2f(pos));
+		setPosition(windowSize, margin, fontHeight);
 		if (input.getMousePosY() < windowSize.y - pos.y
 				&& input.getMousePosY() > windowSize.y - pos.y - textComponent.getSize().y) {
 			if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT) && onAlignedLeftClick != null)
@@ -50,6 +54,24 @@ class Button {
 			}
 		}
 		textComponent.setColor(selected ? selectedColor : new Vector4f(1));
+	}
+
+	protected void setPosition(Vector2f windowSize, float margin, float fontHeight) {
+		switch (posX) {
+		case LEFT:
+			pos.x = margin;
+			break;
+		case MIDDLE:
+			pos.x = windowSize.x / 2;
+			break;
+		case RIGHT:
+			pos.x = windowSize.x - margin;
+		}
+		if (posY.name().contains("LINE"))
+			pos.y = windowSize.y - margin - fontHeight * posY.getLine();
+		else if (posY == BOTTOM)
+			pos.y = margin;
+		textComponent.setPos(pos);
 	}
 
 	void setHoveredLeftClickCallback(ButtonHoveredLeftClickCallback onHoveredLeftClick) {
@@ -107,5 +129,9 @@ class Button {
 	}
 	void setSelectedColor(Vector4f color) {
 		selectedColor = color;
+	}
+
+	ButtonPositionY getPosY() {
+		return posY;
 	}
 }

@@ -1,14 +1,18 @@
 package fr.mipiker.game.ui;
 
+import static fr.mipiker.game.ui.ButtonPositionX.*;
+import static fr.mipiker.game.ui.ButtonPositionY.*;
+import static java.lang.Math.min;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.*;
 
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
 import fr.mipiker.game.*;
+import fr.mipiker.game.Map;
 import fr.mipiker.game.utils.UtilsMapIO;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.loader.FontLoader;
@@ -19,7 +23,7 @@ public class PageManager {
 	private static String fontPath = "resources/Optimus.otf";
 
 	private float margin;
-	private int height;
+	private int fontHeight;
 	private String page = "Menu";
 	private Window window;
 	private HashMap<String, Button> bMenu = new HashMap<>();
@@ -37,27 +41,27 @@ public class PageManager {
 		font = FontLoader.loadFont(fontPath, window.getSize().y / 20);
 
 		// Menu
-		bMenu.put("Continue", new Button("Continue", hud));
+		bMenu.put("Continue", new Button("Continue", hud, LEFT, LINE0));
 		bMenu.get("Continue").setHoveredLeftClickCallback(() -> {
 			page = "In Game";
 			Settings.LAST_PLAYED_MAP_NAME = game.getMap().getName();
 			unShow(bMenu, hud);
 			firstRender = true;
 		});
-		bMenu.put("World", new Button("World", hud));
+		bMenu.put("World", new Button("World", hud, LEFT, LINE1));
 		bMenu.get("World").setHoveredLeftClickCallback(() -> {
 			page = "World";
 			unShow(bMenu, hud);
 			firstRender = true;
 			resetButtonWorld(hud, game);
 		});
-		bMenu.put("Options", new Button("Options", hud));
+		bMenu.put("Options", new Button("Options", hud, LEFT, LINE2));
 		bMenu.get("Options").setHoveredLeftClickCallback(() -> {
 			page = "Options";
 			unShow(bMenu, hud);
 			firstRender = true;
 		});
-		bMenu.put("Quit Game", new Button("Quit Game", hud));
+		bMenu.put("Quit Game", new Button("Quit Game", hud, LEFT, ButtonPositionY.BOTTOM));
 		bMenu.get("Quit Game").setHoveredLeftClickCallback(() -> GLFW.glfwSetWindowShouldClose(window.getID(), true));
 		for (Button b : bMenu.values()) {
 			b.setHoveredCallback(() -> {
@@ -66,10 +70,14 @@ public class PageManager {
 			});
 		}
 		// Option
-		bOptions.put("Render Distance", new Button("Render Distance", hud));
-		bOptions.put("Value Render Distance", new Button(Integer.toString(Settings.RENDER_DISTANCE), hud));
-		bOptions.put("Auto Save Time", new Button("Auto Save Time", hud));
-		bOptions.put("Value Auto Save Time", new Button(Integer.toString(Settings.AUTO_SAVE_TIME) + "s", hud));
+		bOptions.put("Render Distance", new Button("Render Distance", hud, LEFT, LINE0));
+		bOptions.put("Value Render Distance",
+				new Button(Integer.toString(Settings.RENDER_DISTANCE), hud, RIGHT, LINE0));
+		bOptions.put("Auto Save Time", new Button("Auto Save Time", hud, LEFT, LINE1));
+		bOptions.put("Value Auto Save Time",
+				new Button(Integer.toString(Settings.AUTO_SAVE_TIME) + "s", hud, RIGHT, LINE1));
+		bOptions.put("Sounds", new Button("Sounds", hud, LEFT, LINE2));
+		bOptions.put("Value Sounds", new Button(Settings.SOUNDS ? "on" : "off", hud, RIGHT, LINE2));
 		for (Button b : bOptions.values()) {
 			b.setMouseAlignedCallback(() -> {
 				b.getComponent().getTransformation().scaling(1.25f);
@@ -98,8 +106,12 @@ public class PageManager {
 				game.getMap().resetTimer();
 			}
 		});
+		bOptions.get("Value Sounds").setAlignedLeftClickCallback(() -> {
+			Settings.SOUNDS = !Settings.SOUNDS;
+			bOptions.get("Value Sounds").setText(Settings.SOUNDS ? "on" : "off");
+		});
 
-		Button b = new Button("Back", hud);
+		Button b = new Button("Back", hud, LEFT, BOTTOM);
 		b.setHoveredCallback(() -> {
 			b.getComponent().getTransformation().scaling(1.25f);
 			b.getComponent().setPos(new Vector2f(b.getPos().x, b.getPos().y - b.getComponent().getSize().y / 8));
@@ -123,25 +135,16 @@ public class PageManager {
 
 		margin = windowSize.y * 0.25f;
 		if (font.getSize() != null)
-			height = font.getSize().y;
+			fontHeight = font.getSize().y;
 
 		switch (page) {
 		case "Menu":
-			bMenu.get("Continue").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height));
-			bMenu.get("World").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height * 2));
-			bMenu.get("Options").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height * 3));
-			bMenu.get("Quit Game").update(input, windowSize, new Vector2f(margin));
+			for (Button b : bMenu.values())
+				b.update(input, windowSize, margin, fontHeight);
 			break;
 		case "Options":
-			bOptions.get("Render Distance").update(input, windowSize,
-					new Vector2f(margin, windowSize.y - margin - height));
-			bOptions.get("Value Render Distance").update(input, windowSize,
-					new Vector2f(windowSize.x - margin, windowSize.y - margin - height));
-			bOptions.get("Auto Save Time").update(input, windowSize,
-					new Vector2f(margin, windowSize.y - margin - height * 2));
-			bOptions.get("Value Auto Save Time").update(input, windowSize,
-					new Vector2f(windowSize.x - margin, windowSize.y - margin - height * 2));
-			bOptions.get("Back").update(input, windowSize, new Vector2f(margin));
+			for (Button b : bOptions.values())
+				b.update(input, windowSize, margin, fontHeight);
 			break;
 		case "In Game":
 			if (input.isLastKeyPress(GLFW_KEY_ESCAPE)) {
@@ -157,33 +160,21 @@ public class PageManager {
 			}
 			break;
 		case "World":
-			for (Button b : bWorld.values()) {
-				if (b.getText().equalsIgnoreCase(selectedActionWorld))
-					b.setSelected(true);
-				else
-					b.setSelected(false);
-			}
-			bWorld.get("New").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height));
-			bWorld.get("Load").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height * 2));
-			bWorld.get("Copy").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height * 3));
-			bWorld.get("Delete").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height * 4));
-			bWorld.get("Back").update(input, windowSize, new Vector2f(margin));
-			int i = 0;
-			for (String s : new File("save").list()) {
-				i++;
-				bWorld.get(s).update(input, windowSize,
-						new Vector2f(windowSize.x / 2, windowSize.y - margin - height * i));
+			try {
+				for (Button b : bWorld.values()) {
+					if (b.getText().equalsIgnoreCase(selectedActionWorld))
+						b.setSelected(true);
+					else
+						b.setSelected(false);
+					b.update(input, windowSize, margin, fontHeight);
+				}
+			} catch (ConcurrentModificationException e) {
+				e.printStackTrace();
 			}
 			break;
 		case "New World":
-			bNewWorld.get("Create").update(input, windowSize, new Vector2f(margin, windowSize.y - margin - height));
-			bNewWorld.get("Back").update(input, windowSize, new Vector2f(margin));
-			bNewWorld.get("World Name").update(input, windowSize,
-					new Vector2f(windowSize.x / 2, windowSize.y - margin - height));
-			bNewWorld.get("Chunk Size").update(input, windowSize,
-					new Vector2f(windowSize.x / 2, windowSize.y - margin - height * 2));
-			bNewWorld.get("Value Chunk Size").update(input, windowSize,
-					new Vector2f(windowSize.x - margin, windowSize.y - margin - height * 2));
+			for (Button b : bNewWorld.values())
+				b.update(input, windowSize, margin, fontHeight);
 			break;
 		}
 	}
@@ -257,51 +248,53 @@ public class PageManager {
 	private void resetButtonWorld(Hud hud, MainLoxy game) {
 		unShow(bWorld, hud);
 		bWorld.clear();
-		bWorld.put("Back", new Button("Back", hud));
+		bWorld.put("Back", new Button("Back", hud, LEFT, BOTTOM));
 		bWorld.get("Back").setHoveredLeftClickCallback(() -> {
 			page = "Menu";
 			firstRender = true;
 			unShow(bWorld, hud);
 		});
-		bWorld.put("New", new Button("New", hud));
+		bWorld.put("New", new Button("New", hud, LEFT, LINE0));
 		bWorld.get("New").setHoveredLeftClickCallback(() -> {
 			page = "New World";
 			resetButtonNewWorld(hud, game);
 			firstRender = true;
 			unShow(bWorld, hud);
 		});
-		bWorld.put("Load", new Button("Load", hud));
+		bWorld.put("Load", new Button("Load", hud, LEFT, LINE1));
 		bWorld.get("Load").setSelectedColor(new Vector4f(0.4f, 0.69f, .19f, 1));
 		bWorld.get("Load").setHoveredLeftClickCallback(() -> {
 			selectedActionWorld = "Load";
 		});
 		bWorld.get("Load").setSelected(true);
-		bWorld.put("Copy", new Button("Copy", hud));
+		bWorld.put("Copy", new Button("Copy", hud, LEFT, LINE2));
 		bWorld.get("Copy").setSelectedColor(new Vector4f(0.4f, 0.69f, .19f, 1));
 		bWorld.get("Copy").setHoveredLeftClickCallback(() -> {
 			selectedActionWorld = "Copy";
 		});
-		bWorld.put("Delete", new Button("Delete", hud));
+		bWorld.put("Delete", new Button("Delete", hud, LEFT, LINE3));
 		bWorld.get("Delete").setSelectedColor(new Vector4f(0.4f, 0.69f, .19f, 1));
 		bWorld.get("Delete").setHoveredLeftClickCallback(() -> {
 			selectedActionWorld = "Delete";
 		});
-		for (String s : new File("save").list()) {
-			bWorld.put(s, new Button(s, hud));
-			bWorld.get(s).setHoveredLeftClickCallback(() -> {
+		String[] saveListName = new File("save").list();
+		for (int i = 0; i < min(saveListName.length, 5); i++) {
+			bWorld.put(saveListName[i], new Button(saveListName[i], hud, MIDDLE, ButtonPositionY.getLine(i)));
+			Button b = bWorld.get(saveListName[i]);
+			b.setHoveredLeftClickCallback(() -> {
 				if ("Load".equalsIgnoreCase(selectedActionWorld)) {
-					game.setMap(UtilsMapIO.load(game.getPlayer(), s));
+					game.setMap(UtilsMapIO.load(game.getPlayer(), b.getText()));
 					page = "In Game";
 					unShow(bWorld, hud);
 					firstRender = true;
 					Settings.LAST_PLAYED_MAP_NAME = game.getMap().getName();
 				} else if ("Copy".equalsIgnoreCase(selectedActionWorld)) {
-					UtilsMapIO.copy(s, s + " - Copy");
+					UtilsMapIO.copy(b.getText(), b.getText() + " - Copy");
 					resetButtonWorld(hud, game);
 				} else if ("Delete".equalsIgnoreCase(selectedActionWorld)) {
-					UtilsMapIO.delete(s);
-					bWorld.get(s).unShow();
-					bWorld.remove(s);
+					UtilsMapIO.delete(b.getText());
+					bWorld.get(b.getText()).unShow();
+					bWorld.remove(b.getText());
 				}
 			});
 		}
@@ -317,14 +310,14 @@ public class PageManager {
 	private void resetButtonNewWorld(Hud hud, MainLoxy game) {
 		unShow(bNewWorld, hud);
 		bNewWorld.clear();
-		bNewWorld.put("Back", new Button("Back", hud));
+		bNewWorld.put("Back", new Button("Back", hud, LEFT, BOTTOM));
 		bNewWorld.get("Back").setHoveredLeftClickCallback(() -> {
 			page = "World";
 			firstRender = true;
 			unShow(bNewWorld, hud);
 		});
-		bNewWorld.put("World Name", new TextInput(hud, "Loxy World"));
-		bNewWorld.put("Create", new Button("Create", hud));
+		bNewWorld.put("World Name", new TextInput(hud, "Loxy World", MIDDLE, LINE0));
+		bNewWorld.put("Create", new Button("Create", hud, LEFT, LINE0));
 		bNewWorld.get("Create").setHoveredLeftClickCallback(() -> {
 			Chunk.SIZE = Integer.parseInt(bNewWorld.get("Value Chunk Size").getText());
 			game.setMap(new Map(bNewWorld.get("World Name").getText()));
@@ -333,8 +326,8 @@ public class PageManager {
 			firstRender = true;
 			Settings.LAST_PLAYED_MAP_NAME = game.getMap().getName();
 		});
-		bNewWorld.put("Chunk Size", new Button("Chunk Size", hud));
-		bNewWorld.put("Value Chunk Size", new Button(Integer.toString(Settings.DEFAULT_CHUNK_SIZE), hud));
+		bNewWorld.put("Chunk Size", new Button("Chunk Size", hud, MIDDLE, LINE1));
+		bNewWorld.put("Value Chunk Size", new Button(Integer.toString(Settings.DEFAULT_CHUNK_SIZE), hud, RIGHT, LINE1));
 		bNewWorld.get("Chunk Size").setHoveredLeftClickCallback(() -> {
 			Settings.DEFAULT_CHUNK_SIZE++; // Not the good way to do this
 			bNewWorld.get("Value Chunk Size").setText(Integer.toString(Settings.DEFAULT_CHUNK_SIZE));

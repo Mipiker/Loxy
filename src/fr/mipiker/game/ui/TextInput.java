@@ -10,19 +10,18 @@ import fr.mipiker.isisEngine.*;
 class TextInput extends Button {
 
 	private int width;
-	private HudFrameComponent frame;;
+	private HudFrameComponent frame;
 
-	TextInput(Hud hud, String defaultText) {
-		super(defaultText, hud);
+	TextInput(Hud hud, String defaultText, ButtonPositionX posX, ButtonPositionY posY) {
+		super(defaultText, hud, posX, posY);
 		resetFrameComponent();
 	}
 
 	@Override
-	void update(Input input, Vector2f windowSize, Vector2f pos) {
+	void update(Input input, Vector2f windowSize, float margin, float fontHeight) {
 		width = (int) (windowSize.x * 0.4);
-		this.pos = pos;
 		textComponent.getTransformation().scaling(1f);
-		textComponent.setPos(new Vector2f(pos));
+		setPosition(windowSize, margin, fontHeight);
 		frame.setSize(new Vector2i(width + font.getSize().y / 4 * 2, font.getSize().y));
 		frame.setPos(new Vector2f(pos.x - font.getSize().y / 4, pos.y));
 		if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -39,8 +38,9 @@ class TextInput extends Button {
 				setText(text);
 			}
 			for (Character c : input.getKeyCharPressed())
-				if (textComponent.getSize().x + font.getCharTextureWidth(c).getWidth()
-						* textComponent.getTransformation().getScale(new Vector3f()).x < width)
+				if (font.getCharTextureWidth(c) != null
+						&& textComponent.getSize().x + font.getCharTextureWidth(c).getWidth()
+								* textComponent.getTransformation().getScale(new Vector3f()).x < width)
 					setText(text + c);
 		}
 		frame.setRoundCornerSize(frame.getSize().y / 3f);
