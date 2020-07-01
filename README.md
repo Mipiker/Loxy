@@ -19,7 +19,8 @@ This is what it looks like :</br>
 
 ### Key bindings :
 - Move with **Z, Q, S, D, control, espace**
-- Select a tile with **mouse wheel**
+- Scroll in the slot bar with **mouse wheel** to select tiles or tools
+- **A** to change the slot bar in tool or tile mode
 - **Left click** to place the selected tile
 - **Right click** to remove it
 - **E** to interact

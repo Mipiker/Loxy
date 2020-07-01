@@ -2,31 +2,29 @@ package fr.mipiker.game;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import java.lang.Math;
-
-import org.joml.*;
+import org.joml.Vector3f;
 
 import fr.mipiker.game.item.*;
 import fr.mipiker.game.item.gate.*;
-import fr.mipiker.game.tiles.*;
-import fr.mipiker.game.tiles.gate.Gate;
 import fr.mipiker.game.ui.*;
 import fr.mipiker.isisEngine.*;
-import fr.mipiker.isisEngine.utils.SelectionUtils;
 
 public class Player {
 
 	private Camera camera;
 	private int speedFactor = 1;
-	private Tile selectedTile;
-	private SlotBar slotBar;
+	private SlotBar displayedSlotBar, selectionSlotBar, tileSlotBar;
 	private Vector3f velocity = new Vector3f();
 	private SoundManager soundManager;
+	private Selector selector;
+	private RegionSelector regionSelector;
 
 	public Player(Camera camera, Hud hud, SoundManager soundManager, Window window) {
 		this.camera = camera;
 		this.soundManager = soundManager;
 		initSlotBar(hud, window);
+		selector = new Selector();
+		regionSelector = new RegionSelector();
 	}
 
 	public void update(Input input, Map map, Window window) {
@@ -35,8 +33,7 @@ public class Player {
 		soundManager.getListener().setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
 				(float) (Math.random() * 100)));
 		updateSlotBar(input, window);
-		if (map != null)
-			select(input, map, window);
+		select(input, map, window);
 	}
 
 	public void move(Input input) {
@@ -68,147 +65,75 @@ public class Player {
 		camera.moveAlongAxis(new Vector3f(velocity.x, velocity.y, velocity.z));
 	}
 
-	public void select(Input input, Map map, Window window) {
-		// Select a tile
-		Tile newSelectedTile = null;
-		if (camera.getPosition().y < 100 && (input.isMouseMoved() || !velocity.equals(new Vector3f(0), 0.001f))) {
-			Vector3f dir = SelectionUtils.getRayFromMouse(new Vector2f(input.getMousePosX(), input.getMousePosY()),
-					window, camera);
-			Rayf ray = new Rayf(camera.getPosition(), dir);
-			Planef plane = new Planef(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1), new Vector3f(1, 0, 0));
-			float t = Intersectionf.intersectRayPlane(ray, plane, 0.0001f);
-			if (t != -1) {
-				Vector3f intersect = camera.getPosition().add(dir.mul(t), new Vector3f());
-				newSelectedTile = map
-						.getTile(new Vector2i((int) Math.floor(intersect.x), (int) Math.floor(intersect.z)));
+	private void select(Input input, Map map, Window window) {
+		if (displayedSlotBar.equals(tileSlotBar)) {
+			selector.selectTile(input, map, window, this);
+			if (selector.getSelectedTile() != null)
+				selector.action(input, map, displayedSlotBar.getSelectedSlot().getItem(), soundManager);
+		} else {
+			selector.selectTile(input, map, window, this);
+			if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT) && !regionSelector.isLockedStartPos()
+					&& !regionSelector.isLockedEndPos()) // Start region selection
+				regionSelector.lockStartPos(selector.getSelectedTile().getPos().getWorldPos());
+			if (input.isLastMouseButtonReleased(GLFW_MOUSE_BUTTON_LEFT) && regionSelector.isLockedStartPos()
+					&& !regionSelector.isLockedEndPos()) // End region selection
+				regionSelector.lockEndPos(selector.getSelectedTile().getPos().getWorldPos());
+			if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT) && regionSelector.isLockedStartPos()
+					&& regionSelector.isLockedEndPos()) // reset region selection
+				regionSelector.reset(map);
+			if (regionSelector.isLockedStartPos()) {
+				regionSelector.selectRegion(regionSelector.getLockedStartPos(),
+						regionSelector.isLockedEndPos() ? regionSelector.getLockedEndPos()
+								: selector.getSelectedTile().getPos().getWorldPos(),
+						map);
+				if (regionSelector.isLockedEndPos() && selector.getSelectedTile() != null)
+					regionSelector.action(input, map, displayedSlotBar.getSelectedSlot().getItem());
 			}
 		}
-		if (selectedTile != null) {
-			selectedTile.getMesh().getMaterial().setAmbientStrength(1);
-			selectedTile.getBelongChunk().resetMeshOnUpdate();
-		}
-		if (newSelectedTile != null)
-			selectedTile = newSelectedTile;
-		if (selectedTile != null) {
-			selectedTile = actionSelect(input, map, selectedTile, soundManager);
-			selectedTile.getMesh().getMaterial().setAmbientStrength(2);
-			selectedTile.getBelongChunk().resetMeshOnUpdate();
-		}
-	}
 
-	private Tile actionSelect(Input input, Map map, Tile tile, SoundManager soundManager) {
-		SoundSource ss;
-		if (input.isMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT)) {
-			Item selected = slotBar.getSelectedSlot().getItem();
-			if (selected != null) {
-				EnumTiles type = EnumTiles.getTile(selected.TYPE);
-				if (type != null) {
-					if (type != tile.TYPE) {
-						tile = Tile.newTile(type, tile.getBelongChunk(), tile.getPos());
-						map.setTile(tile);
-						if (Settings.SOUNDS) {
-							ss = soundManager.getSoundSource("place");
-							ss.setPosition(
-									new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
-							ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
-									(float) (Math.random() * 100)));
-							ss.play();
-						}
-					}
-				}
-			}
-		}
-		if (!(tile instanceof Empty) && input.isMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT)) {
-			tile = new Empty(tile.getBelongChunk(), tile.getPos());
-			map.setTile(tile);
-			if (Settings.SOUNDS) {
-				ss = soundManager.getSoundSource("delete");
-				ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
-				ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
-						(float) (Math.random() * 100)));
-				ss.play();
-			}
-		}
-		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && tile instanceof Switch) {
-			((Switch) tile).setPower(!((Switch) tile).isPowered());
-			if (Settings.SOUNDS) {
-				ss = soundManager.getSoundSource("action");
-				ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
-				ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
-						(float) (Math.random() * 100)));
-				ss.play();
-			}
-		}
-		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Gate)) {
-			((Gate) tile).rotate();
-			if (Settings.SOUNDS) {
-				ss = soundManager.getSoundSource("action");
-				ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
-				ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
-						(float) (Math.random() * 100)));
-				ss.play();
-			}
-		}
-		if (input.getLastKeyState(GLFW_KEY_E) == GLFW_PRESS && (tile instanceof Wire)) {
-			if (((Wire) tile).canBeBridged()) {
-				if (Settings.SOUNDS) {
-					ss = soundManager.getSoundSource("action");
-					ss.setPosition(new Vector3f(tile.getPos().getWorldPos().x, 0, tile.getPos().getWorldPos().y));
-					ss.setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
-							(float) (Math.random() * 100)));
-					ss.play();
-				}
-				((Wire) tile).setBridge(!((Wire) tile).isBridge());
-			}
-		}
-		if (input.getLastKeyState(GLFW_KEY_F5) == GLFW_PRESS)
-			tile.mustUpdate();
-		if (input.getLastKeyState(GLFW_KEY_F4) == GLFW_PRESS)
-			System.out.println("\n" + tile.toString());
-
-		return tile;
 	}
 
 	public void updateSlotBar(Input input, Window window) {
+		if (input.isLastKeyPress(GLFW_KEY_Q)) {
+			displayedSlotBar.unShow();
+			displayedSlotBar = displayedSlotBar.equals(selectionSlotBar) ? tileSlotBar : selectionSlotBar;
+			displayedSlotBar.show();
+			displayedSlotBar.resetPos(window.getSize().x);
+		}
 		if (input.isMouseScroll()) {
-			slotBar.getSelectedSlot().getComponentSlot().getTransformation().translate(0, -Slot.SIZE, 0);
-			if (slotBar.getSelectedSlot().hasItem())
-				slotBar.getSelectedSlot().getComponentItem().getTransformation().translate(0, -Slot.SIZE, 0);
-			slotBar.moveSelectSlot(input.getMouseScroll());
-			slotBar.getSelectedSlot().getComponentSlot().getTransformation().translate(0, Slot.SIZE, 0);
-			if (slotBar.getSelectedSlot().hasItem())
-				slotBar.getSelectedSlot().getComponentItem().getTransformation().translate(0, Slot.SIZE, 0);
+			displayedSlotBar.getSelectedSlot().getComponentSlot().getTransformation().translate(0, -Slot.SIZE, 0);
+			if (displayedSlotBar.getSelectedSlot().hasItem())
+				displayedSlotBar.getSelectedSlot().getComponentItem().getTransformation().translate(0, -Slot.SIZE, 0);
+			displayedSlotBar.moveSelectSlot(input.getMouseScroll());
+			displayedSlotBar.getSelectedSlot().getComponentSlot().getTransformation().translate(0, Slot.SIZE, 0);
+			if (displayedSlotBar.getSelectedSlot().hasItem())
+				displayedSlotBar.getSelectedSlot().getComponentItem().getTransformation().translate(0, Slot.SIZE, 0);
 		}
 	}
 
 	private void initSlotBar(Hud hud, Window window) {
-		slotBar = new SlotBar(10);
-		slotBar.addItem(new WireItem());
-		slotBar.addItem(new PowerItem());
-		slotBar.addItem(new OrGateItem());
-		slotBar.addItem(new XorGateItem());
-		slotBar.addItem(new AndGateItem());
-		slotBar.addItem(new InvGateItem());
-		resetPosSlotBar(window);
-	}
-
-	public void resetPosSlotBar(Window window) {
-		int spacebtw = 10;
-		float posX = (window.getSize().x / 2f) - (((Slot.SIZE + spacebtw) * slotBar.getSize()) / 2f);
-		for (int i = 0; i < slotBar.getSize(); i++) {
-			Slot slot = slotBar.getSlot(i);
-			slot.getComponentSlot().getTransformation().setTranslation(posX, spacebtw, 0);
-			if (slot.hasItem())
-				slot.getComponentItem().getTransformation().setTranslation(posX, spacebtw, 0.2f);
-			posX += Slot.SIZE + spacebtw;
-		}
-		slotBar.getSelectedSlot().getComponentSlot().getTransformation().translate(0, Slot.SIZE, 0);
-		if (slotBar.getSelectedSlot().hasItem())
-			slotBar.getSelectedSlot().getComponentItem().getTransformation().translate(0, Slot.SIZE, 0);
+		tileSlotBar = new SlotBar(6, hud);
+		tileSlotBar.addItem(new WireItem());
+		tileSlotBar.addItem(new PowerItem());
+		tileSlotBar.addItem(new OrGateItem());
+		tileSlotBar.addItem(new XorGateItem());
+		tileSlotBar.addItem(new AndGateItem());
+		tileSlotBar.addItem(new InvGateItem());
+		tileSlotBar.resetPos(window.getSize().x);
+		selectionSlotBar = new SlotBar(3, hud);
+		selectionSlotBar.addItem(new RemoveItem());
+		selectionSlotBar.addItem(new PasteItem());
+		selectionSlotBar.addItem(new StackItem());
+		selectionSlotBar.resetPos(window.getSize().x);
+		displayedSlotBar = tileSlotBar;
 	}
 
 	public SlotBar getSlotBar() {
-		return slotBar;
+		return displayedSlotBar;
+	}
+
+	public Vector3f getVelocity() {
+		return velocity;
 	}
 
 	public Camera getCamera() {

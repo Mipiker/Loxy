@@ -7,29 +7,47 @@ public class SlotBar {
 
 	private Slot[] slots;
 	private int selectedSlot;
+	private Hud hud;
 
-	public SlotBar(int size) {
+	public SlotBar(int size, Hud hud) {
 		slots = new Slot[size];
 		for (int i = 0; i < size; i++)
 			slots[i] = new Slot();
+		this.hud = hud;
 	}
-	public SlotBar(Slot[] slots) {
+	public SlotBar(Slot[] slots, Hud hud) {
 		setSlot(slots);
+		this.hud = hud;
 	}
-	
-	public void show(Hud hud) {
+
+	public void show() {
 		for (Slot slot : getSlots()) {
 			hud.replaceComponent(slot.getComponentSlot());
 			if (slot.hasItem())
 				hud.replaceComponent(slot.getComponentItem());
 		}
 	}
-	public void unShow(Hud hud) {
+	public void unShow() {
 		for (Slot slot : getSlots()) {
 			hud.removeComponent(slot.getComponentSlot());
 			if (slot.hasItem())
 				hud.removeComponent(slot.getComponentItem());
 		}
+	}
+
+	public void resetPos(int windowWidth) {
+		int spacebtw = 10;
+		float posX = (windowWidth / 2f) - (((Slot.SIZE + spacebtw) * slots.length) / 2f);
+		for (int i = 0; i < slots.length; i++) {
+			Slot slot = slots[i];
+			slot.getComponentSlot().getTransformation().setTranslation(posX, spacebtw, 0);
+			if (slot.hasItem())
+				slot.getComponentItem().getTransformation().setTranslation(posX, spacebtw, 0.2f);
+			posX += Slot.SIZE + spacebtw;
+		}
+		slots[selectedSlot].getComponentSlot().getTransformation().translate(0, Slot.SIZE, 0);
+		if (slots[selectedSlot].hasItem())
+			slots[selectedSlot].getComponentItem().getTransformation().translate(0, Slot.SIZE, 0);
 	}
 
 	public Slot getSelectedSlot() {
@@ -71,8 +89,8 @@ public class SlotBar {
 	}
 
 	public SlotBar addItem(Item item) {
-		for(Slot slot : slots) {
-			if(slot != null && slot.getItem() == null) {
+		for (Slot slot : slots) {
+			if (slot != null && slot.getItem() == null) {
 				slot.setItem(item);
 				return this;
 			}

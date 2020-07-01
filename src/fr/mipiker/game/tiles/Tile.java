@@ -56,7 +56,6 @@ public abstract class Tile {
 		case INV_GATE:
 			return new InvGate(belongChunk, pos);
 		}
-		System.out.println("ho!!!");
 		return null;
 	}
 	public static void load() {
@@ -73,8 +72,8 @@ public abstract class Tile {
 
 	protected abstract void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles);
 	/**
-	 * Update now the tile, reserved to be executed only by the map witch can order correctly the
-	 * updates
+	 * Update now the tile, reserved to be executed only by the map witch can order
+	 * correctly the updates
 	 */
 	public void updateNow() {
 		update(belongChunk.getBelongMap().getSurroundingTiles(pos));
@@ -171,6 +170,6 @@ public abstract class Tile {
 /*
  * How Update of tiles work :
  * 
- * When a tile is updated (manually or not), It update itself and if it is necessary, It will update
- * his surrounding tiles.
+ * When a tile is updated (manually or not), It update itself and if it is
+ * necessary, It will update his surrounding tiles.
  */

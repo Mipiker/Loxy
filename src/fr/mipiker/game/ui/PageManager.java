@@ -130,7 +130,7 @@ public class PageManager {
 		resetButtonNewWorld(hud, game);
 	}
 
-	public void update(Input input, Player player, Hud hud, MainLoxy game) {
+	public void update(Input input, Player player, MainLoxy game) {
 		Vector2f windowSize = new Vector2f(window.getSize());
 
 		margin = windowSize.y * 0.25f;
@@ -150,7 +150,7 @@ public class PageManager {
 			if (input.isLastKeyPress(GLFW_KEY_ESCAPE)) {
 				page = "Menu";
 				firstRender = true;
-				player.getSlotBar().unShow(hud);
+				player.getSlotBar().unShow();
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -198,8 +198,8 @@ public class PageManager {
 			break;
 		case "In Game":
 			if (firstRender) {
-				player.getSlotBar().show(hud);
-				player.resetPosSlotBar(window);
+				player.getSlotBar().show();
+				player.getSlotBar().resetPos(window.getSize().x);
 				firstRender = false;
 			}
 			break;

@@ -65,14 +65,13 @@ public class MainLoxy implements IGame {
 		SoundSource place = new SoundSource(false, false);
 		place.setBuffer(bufferPlace.getBufferId());
 		soundManager.addSoundSource("place", place);
-
 	}
 
 	@Override
 	public void update(Input input) {
 		if (map == null)
 			setMap(new Map());
-		pageManager.update(input, player, renderer.getHud(), this);
+		pageManager.update(input, player, this);
 		boolean isTickUpdate = tick.update();
 		if (!"In Game".equalsIgnoreCase(pageManager.getPage())) {
 			scene.setBlur(true);
@@ -141,9 +140,11 @@ public class MainLoxy implements IGame {
 		return map;
 	}
 	public void setMap(Map map) {
-		if (this.map != null)
-			this.map.delete();
-		scene.resetMeshes();
-		this.map = map;
+		if (map != null) {
+			if (this.map != null)
+				this.map.delete();
+			scene.resetMeshes();
+			this.map = map;
+		}
 	}
 }
