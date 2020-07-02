@@ -58,6 +58,11 @@ public abstract class Tile {
 		}
 		return null;
 	}
+
+	public static Tile copy(Tile tile) {
+		return Tile.newTile(tile.TYPE, tile.belongChunk, tile.pos);
+	}
+
 	public static void load() {
 		if (mapTileTypeTextures == null) {
 			mapTileTypeTextures = new HashMap<>();
@@ -107,6 +112,11 @@ public abstract class Tile {
 
 	///////////////////////
 
+	public void setPosition(PositionTile pos, Chunk belongChunk) {
+		this.pos = new PositionTile(pos);
+		this.belongChunk = belongChunk;
+		translateMeshToPosition();
+	}
 	/**
 	 * Translate the mesh to the correct position
 	 */

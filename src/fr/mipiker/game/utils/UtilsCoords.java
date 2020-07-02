@@ -6,6 +6,9 @@ import fr.mipiker.game.Chunk;
 
 public class UtilsCoords {
 
+	/**
+	 * It's seems to be buggy if return a negative digit sometimes
+	 */
 	public static Vector2i getChunkPosFromWorldPos(Vector2i worldPos) {
 		int x = 0;
 		int y = 0;

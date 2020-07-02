@@ -32,7 +32,7 @@ public class Player {
 		soundManager.getListener().setPosition(camera.getPosition());
 		soundManager.getListener().setSpeed(new Vector3f((float) (Math.random() * 100), (float) (Math.random() * 100),
 				(float) (Math.random() * 100)));
-		updateSlotBar(input, window);
+		updateSlotBar(input, window, map);
 		select(input, map, window);
 	}
 
@@ -63,14 +63,16 @@ public class Player {
 			velocity.y /= 1.001;
 		velocity.min(new Vector3f(0.05f)).max(new Vector3f(-0.05f));
 		camera.moveAlongAxis(new Vector3f(velocity.x, velocity.y, velocity.z));
+		if (camera.getPosition().y < 10)
+			camera.setPosition(new Vector3f(camera.getPosition().x, 10, camera.getPosition().z));
 	}
 
 	private void select(Input input, Map map, Window window) {
-		if (displayedSlotBar.equals(tileSlotBar)) {
+		if (displayedSlotBar.equals(tileSlotBar)) { // Tile mode
 			selector.selectTile(input, map, window, this);
 			if (selector.getSelectedTile() != null)
 				selector.action(input, map, displayedSlotBar.getSelectedSlot().getItem(), soundManager);
-		} else {
+		} else { // Area selection mode
 			selector.selectTile(input, map, window, this);
 			if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_LEFT) && !regionSelector.isLockedStartPos()
 					&& !regionSelector.isLockedEndPos()) // Start region selection
@@ -87,16 +89,20 @@ public class Player {
 								: selector.getSelectedTile().getPos().getWorldPos(),
 						map);
 				if (regionSelector.isLockedEndPos() && selector.getSelectedTile() != null)
-					regionSelector.action(input, map, displayedSlotBar.getSelectedSlot().getItem());
+					regionSelector.action(input, map, displayedSlotBar.getSelectedSlot().getItem(),
+							selector.getSelectedTile());
 			}
 		}
-
 	}
 
-	public void updateSlotBar(Input input, Window window) {
+	public void updateSlotBar(Input input, Window window, Map map) {
 		if (input.isLastKeyPress(GLFW_KEY_Q)) {
 			displayedSlotBar.unShow();
-			displayedSlotBar = displayedSlotBar.equals(selectionSlotBar) ? tileSlotBar : selectionSlotBar;
+			if (displayedSlotBar.equals(selectionSlotBar)) {
+				regionSelector.reset(map);
+				displayedSlotBar = tileSlotBar;
+			} else
+				displayedSlotBar = selectionSlotBar;
 			displayedSlotBar.show();
 			displayedSlotBar.resetPos(window.getSize().x);
 		}
