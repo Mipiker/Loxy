@@ -9,11 +9,8 @@ public class PositionTile {
 
 	private Vector2i worldPos, chunkPos;
 
-	/**
-	 * Seems to be bugged
-	 */
 	public PositionTile(Vector2i worldPos) {
-		this.chunkPos = UtilsCoords.getChunkPosFromWorldPos(worldPos);
+		this.chunkPos = UtilsCoords.getTilePosInChunkPos(worldPos);
 		this.worldPos = new Vector2i(worldPos);
 	}
 	public PositionTile(Vector2i positionOfChunk, Vector2i chunkPos) {
@@ -32,7 +29,7 @@ public class PositionTile {
 		return chunkPos;
 	}
 	public void setWorldPos(Vector2i worldPos) {
-		this.chunkPos = UtilsCoords.getChunkPosFromWorldPos(new Vector2i(worldPos));
+		this.chunkPos = UtilsCoords.getChunkPos(new Vector2i(worldPos));
 		this.worldPos = new Vector2i(worldPos);
 	}
 

@@ -36,7 +36,7 @@ public class Map {
 	}
 
 	public void update(Scene scene, Player player, boolean tickUpdate) {
-		updateStateChunks(UtilsCoords.getChunkPosFromWorldPos(
+		updateStateChunks(UtilsCoords.getChunkPos(
 				new Vector2i((int) player.getCamera().getPosition().x, (int) player.getCamera().getPosition().z)),
 				scene);
 		Chunk[] chunkToUpdate = this.chunkToUpdate.toArray(new Chunk[this.chunkToUpdate.size()]);
@@ -99,7 +99,7 @@ public class Map {
 		return chunks.get(posChunk);
 	}
 	public Chunk getChunkFromWorldPos(Vector2i worldPos) {
-		return chunks.get(UtilsCoords.getChunkPosFromWorldPos(worldPos));
+		return chunks.get(UtilsCoords.getChunkPos(worldPos));
 	}
 	public HashMap<Vector2i, Chunk> getChunks() {
 		return chunks;
@@ -109,20 +109,9 @@ public class Map {
 		tile.getBelongChunk().setTile(tile);
 	}
 	public Tile getTile(Vector2i worldPos) {
-		int x = 0;
-		int y = 0;
-		if (worldPos.x >= 0)
-			x = worldPos.x % Chunk.SIZE;
-		else
-			x = (Chunk.SIZE + (worldPos.x + 1) % Chunk.SIZE) - 1;
-		if (worldPos.y >= 0)
-			y = worldPos.y % Chunk.SIZE;
-		else
-			y = (Chunk.SIZE + (worldPos.y + 1) % Chunk.SIZE) - 1;
+		Vector2i tilePosInChunk = UtilsCoords.getTilePosInChunkPos(worldPos);
 		Chunk chunk = getChunkFromWorldPos(worldPos);
-		if (chunk != null)
-			return chunk.getTile(new Vector2i(x, y));
-		return null;
+		return chunk != null ? chunk.getTile(tilePosInChunk) : null;
 	}
 
 	public HashMap<EnumCardinalPoint, Tile> getSurroundingTiles(PositionTile pos) {

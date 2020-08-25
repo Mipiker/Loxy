@@ -82,7 +82,7 @@ public class Player {
 				regionSelector.lockEndPos(selector.getSelectedTile().getPos().getWorldPos());
 			if (input.isLastMouseButtonPress(GLFW_MOUSE_BUTTON_RIGHT) && regionSelector.isLockedStartPos()
 					&& regionSelector.isLockedEndPos()) // reset region selection
-				regionSelector.reset(map);
+				regionSelector.reset(map, displayedSlotBar.getSelectedSlot().getItem());
 			if (regionSelector.isLockedStartPos()) {
 				regionSelector.selectRegion(regionSelector.getLockedStartPos(),
 						regionSelector.isLockedEndPos() ? regionSelector.getLockedEndPos()
@@ -99,7 +99,7 @@ public class Player {
 		if (input.isLastKeyPress(GLFW_KEY_Q)) {
 			displayedSlotBar.unShow();
 			if (displayedSlotBar.equals(selectionSlotBar)) {
-				regionSelector.reset(map);
+				regionSelector.reset(map, displayedSlotBar.getSelectedSlot().getItem());
 				displayedSlotBar = tileSlotBar;
 			} else
 				displayedSlotBar = selectionSlotBar;

@@ -5,7 +5,10 @@ import static fr.mipiker.game.tiles.EnumCardinalPoint.NORTH;
 import java.util.*;
 import java.util.Map.Entry;
 
+import org.joml.Vector2i;
+
 import fr.mipiker.game.Chunk;
+import fr.mipiker.game.Map;
 import fr.mipiker.game.tiles.gate.*;
 import fr.mipiker.isisEngine.*;
 import fr.mipiker.isisEngine.loader.Assimp;
@@ -112,9 +115,9 @@ public abstract class Tile {
 
 	///////////////////////
 
-	public void setPosition(PositionTile pos, Chunk belongChunk) {
-		this.pos = new PositionTile(pos);
-		this.belongChunk = belongChunk;
+	public void setPosition(Vector2i worldPos, Map map) {
+		this.pos = new PositionTile(worldPos);
+		this.belongChunk = map.getChunkFromWorldPos(worldPos);
 		translateMeshToPosition();
 	}
 	/**
