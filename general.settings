@@ -1,5 +1,5 @@
 #Loxy general settings
-#Sun Aug 30 11:58:40 CEST 2020
+#Sun Aug 30 13:43:55 CEST 2020
 DEFAULT_CHUNK_SIZE=20
 LAST_PLAYED_MAP_NAME=Loxy World
 SOUNDS=true

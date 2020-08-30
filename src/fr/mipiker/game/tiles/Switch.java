@@ -15,19 +15,29 @@ public class Switch extends Tile implements Powering {
 	}
 
 	@Override
+	public Tile copy() {
+		Switch s = new Switch(belongChunk, pos);
+		s.power = power;
+		return s;
+	}
+
+	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 		mustRenderUpdate();
 		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet())
 			e.getValue().mustUpdate();
 	}
 
+	@Override
 	public void setPower(boolean power) {
 		this.power = power;
 		mustUpdate();
 	}
+	@Override
 	public boolean isPowered() {
 		return power;
 	}
+	@Override
 	public boolean isPowered(EnumCardinalPoint e) {
 		return power; // Switch can give his power in all directions
 	}

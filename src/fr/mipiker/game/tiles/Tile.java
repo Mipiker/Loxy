@@ -62,9 +62,12 @@ public abstract class Tile {
 		return null;
 	}
 
-	public static Tile copy(Tile tile) {
-		return Tile.newTile(tile.TYPE, tile.belongChunk, tile.pos);
-	}
+	// public static Tile copy(Tile tile) {
+	// // return Tile.newTile(tile.TYPE, tile.belongChunk, tile.pos);
+	// return tile.copy();
+	// }
+
+	public abstract Tile copy();
 
 	public static void load() {
 		if (mapTileTypeTextures == null) {

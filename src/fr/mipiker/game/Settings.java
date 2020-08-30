@@ -11,7 +11,7 @@ public class Settings {
 
 	public static int RENDER_DISTANCE = 5;
 	public static int DEFAULT_CHUNK_SIZE = 20;
-	public static String LAST_PLAYED_MAP_NAME;
+	public static String LAST_PLAYED_MAP_NAME = "";
 	public static int AUTO_SAVE_TIME = 10; // In seconds
 	public static boolean SOUNDS = true;
 
@@ -31,6 +31,8 @@ public class Settings {
 	}
 
 	public static void load() {
+		if (!file.exists())
+			save();
 		try (InputStream is = new FileInputStream(file)) {
 			prop.load(is);
 			RENDER_DISTANCE = Integer.parseInt((String) prop.get("RENDER_DISTANCE"));

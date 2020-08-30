@@ -24,6 +24,13 @@ public class Wire extends Tile implements Powering {
 	}
 
 	@Override
+	public Tile copy() {
+		Wire w = new Wire(belongChunk, pos);
+		w.bridge = bridge;
+		return w;
+	}
+
+	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 		int nb = 0;
 		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet())

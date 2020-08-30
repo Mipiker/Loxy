@@ -13,6 +13,29 @@ public abstract class Gate extends Tile implements Powering {
 		property.add(EnumProperty.CONNECT_TO_WIRE);
 	}
 
+	public static Gate newGate(EnumTiles type, Chunk belongChunk, PositionTile pos) {
+		switch (type) {
+		case AND_GATE:
+			return new AndGate(belongChunk, pos);
+		case INV_GATE:
+			return new InvGate(belongChunk, pos);
+		case OR_GATE:
+			return new OrGate(belongChunk, pos);
+		case XOR_GATE:
+			return new XorGate(belongChunk, pos);
+		default:
+			break;
+		}
+		return null;
+	}
+
+	@Override
+	public Gate copy() {
+		Gate g = newGate(TYPE, belongChunk, pos);
+		g.power = power;
+		return g;
+	}
+
 	@Override
 	public boolean isPowered() {
 		return power;

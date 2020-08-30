@@ -9,7 +9,12 @@ public class Empty extends Tile {
 	public Empty(Chunk belongChunk, PositionTile pos) {
 		super(EnumTiles.EMPTY, belongChunk, pos);
 	}
-	
+
+	@Override
+	public Tile copy() {
+		return new Empty(belongChunk, pos);
+	}
+
 	@Override
 	protected void update(HashMap<EnumCardinalPoint, Tile> surroundingTiles) {
 	}

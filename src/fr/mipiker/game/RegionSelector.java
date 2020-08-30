@@ -147,7 +147,8 @@ public class RegionSelector {
 				int y_ = 0, x_ = 0;
 				for (int y = posMinRegionSelected.y; y <= posMaxRegionSelected.y; y++) {
 					for (int x = posMinRegionSelected.x; x <= posMaxRegionSelected.x; x++) {
-						Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+						// Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+						Tile copy = map.getTile(new Vector2i(x, y)).copy();
 						copy.setPosition(new Vector2i(x_ + prevTileSelectedPos.x, y_ + prevTileSelectedPos.y), map);
 						map.setTile(copy);
 						x_++;
@@ -160,7 +161,8 @@ public class RegionSelector {
 					for (int i = 0; i < nbStack; i++) {
 						for (int y = posMinRegionSelected.y; y <= posMaxRegionSelected.y; y++) {
 							for (int x = posMinRegionSelected.x; x <= posMaxRegionSelected.x; x++) {
-								Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								// Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								Tile copy = map.getTile(new Vector2i(x, y)).copy();
 								copy.setPosition(new Vector2i(x, y - sizeRegionSelected.y * (i + 1)), map);
 								map.setTile(copy);
 							}
@@ -170,7 +172,8 @@ public class RegionSelector {
 					for (int i = 0; i < nbStack; i++) {
 						for (int y = posMinRegionSelected.y; y <= posMaxRegionSelected.y; y++) {
 							for (int x = posMinRegionSelected.x; x <= posMaxRegionSelected.x; x++) {
-								Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								// Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								Tile copy = map.getTile(new Vector2i(x, y)).copy();
 								copy.setPosition(new Vector2i(x, y + sizeRegionSelected.y * (i + 1)), map);
 								map.setTile(copy);
 							}
@@ -180,7 +183,8 @@ public class RegionSelector {
 					for (int i = 0; i < nbStack; i++) {
 						for (int y = posMinRegionSelected.y; y <= posMaxRegionSelected.y; y++) {
 							for (int x = posMinRegionSelected.x; x <= posMaxRegionSelected.x; x++) {
-								Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								// Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								Tile copy = map.getTile(new Vector2i(x, y)).copy();
 								copy.setPosition(new Vector2i(x + sizeRegionSelected.x * (i + 1), y), map);
 								map.setTile(copy);
 							}
@@ -190,7 +194,8 @@ public class RegionSelector {
 					for (int i = 0; i < nbStack; i++) {
 						for (int y = posMinRegionSelected.y; y <= posMaxRegionSelected.y; y++) {
 							for (int x = posMinRegionSelected.x; x <= posMaxRegionSelected.x; x++) {
-								Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								// Tile copy = Tile.copy(map.getTile(new Vector2i(x, y)));
+								Tile copy = map.getTile(new Vector2i(x, y)).copy();
 								copy.setPosition(new Vector2i(x - sizeRegionSelected.x * (i + 1), y), map);
 								map.setTile(copy);
 							}
