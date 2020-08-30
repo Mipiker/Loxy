@@ -12,6 +12,7 @@ public class Wire extends Tile implements Powering {
 
 	private boolean power = false;
 	private boolean bridge = false;
+	private boolean canBeBridge = false;
 	private boolean bridgeVerticalPower = false;
 	private boolean bridgeHorizontalPower = false;
 	private HashMap<EnumCardinalPoint, Integer> powerConnectionType = new HashMap<>();
@@ -28,11 +29,10 @@ public class Wire extends Tile implements Powering {
 		for (Entry<EnumCardinalPoint, Tile> e : surroundingTiles.entrySet())
 			if (e.getValue() instanceof Powering)
 				nb++;
-		if (bridge && nb != 4) {
+		canBeBridge = nb == 4;
+		if (!canBeBridge && bridge)
 			power = false;
-			bridge = false;
-		}
-		if (bridge && nb == 4)
+		if (bridge && canBeBridge)
 			updatePowerBridge(surroundingTiles);
 		else
 			updatePower(surroundingTiles);
@@ -238,7 +238,7 @@ public class Wire extends Tile implements Powering {
 		} else if (north && est && !south && west) { // 3 - west/north/est
 			setAndOrientTexture(8, WEST);
 		} else if (north && est && south && west) { // 4 - north/est/south/west
-			if (!bridge)
+			if (!canBeBridge || !bridge)
 				setAndOrientTexture(10, NORTH);
 			else if (!bridgeVerticalPower && !bridgeHorizontalPower)
 				setAndOrientTexture(12, NORTH);
@@ -250,7 +250,7 @@ public class Wire extends Tile implements Powering {
 				setAndOrientTexture(15, NORTH);
 		}
 
-		if (!bridge)
+		if (!canBeBridge || !bridge)
 			setTexture(power ? getActualTexture() + 1 : getActualTexture());
 	}
 
@@ -269,7 +269,7 @@ public class Wire extends Tile implements Powering {
 	public boolean isPowered(EnumCardinalPoint e) {
 		// A wire can only give power to tiles that are not giving power to this wire
 		if (powerConnectionType.get(e) == null || powerConnectionType.get(e) != GET_POWER) {
-			if (!bridge)
+			if (!bridge || !canBeBridge)
 				return power;
 			else if (e == EAST || e == WEST)
 				return bridgeHorizontalPower;

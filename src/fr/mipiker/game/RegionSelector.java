@@ -57,10 +57,10 @@ public class RegionSelector {
 		}
 		lastSelectedItem = selectedItem.TYPE;
 
+		// On selecting area to be modified
 		if (selectedItem.TYPE == EnumItem.STACK
 				&& !selectedTile.getPos().getWorldPos().equals(prevTileSelectedPos)) {
 			prevTileSelectedPos = selectedTile.getPos().getWorldPos();
-
 			// Unhighlight the previous area
 			if (directionStack == EnumCardinalPoint.SOUTH) {
 				hightLightRegion(false, false, new Vector2i(posMinRegionSelected.x, posMaxRegionSelected.y + 1),
@@ -79,7 +79,6 @@ public class RegionSelector {
 						new Vector2i(posMinRegionSelected.x - sizeRegionSelected.x * nbStack, posMaxRegionSelected.y),
 						map);
 			}
-
 			// Calcul the stack status
 			Vector2i selectedPos = selectedTile.getPos().getWorldPos();
 			if (selectedPos.y > posMaxRegionSelected.y && selectedPos.x >= posMinRegionSelected.x &&
@@ -102,9 +101,6 @@ public class RegionSelector {
 				directionStack = null;
 				nbStack = 0;
 			}
-
-			System.out.println(directionStack + " " + nbStack);
-
 			// Highlight the new area
 			if (directionStack == EnumCardinalPoint.SOUTH) {
 				hightLightRegion(true, true, new Vector2i(posMinRegionSelected.x, posMaxRegionSelected.y + 1),
@@ -146,6 +142,7 @@ public class RegionSelector {
 						map.setTile(new Empty(tile.getBelongChunk(), tile.getPos()));
 					}
 				}
+				reset(map, selectedItem);
 			} else if (selectedItem.TYPE == EnumItem.PASTE) {
 				int y_ = 0, x_ = 0;
 				for (int y = posMinRegionSelected.y; y <= posMaxRegionSelected.y; y++) {
@@ -255,10 +252,9 @@ public class RegionSelector {
 	void reset(Map map, Item selectedItem) {
 		if (lockedPos1 != null && lockedPos2 != null)
 			hightLightRegion(false, false, lockedPos1, lockedPos2, map);
-		if (selectedItem.TYPE == EnumItem.PASTE) {
+		if (selectedItem.TYPE == EnumItem.PASTE)
 			hightLightRegion(false, false, prevTileSelectedPos,
 					new Vector2i(prevTileSelectedPos).add(sizeRegionSelected).add(-1, -1), map);
-		}
 		lockedPos1 = null;
 		lockedPos2 = null;
 		executedOnSelecting = false;
